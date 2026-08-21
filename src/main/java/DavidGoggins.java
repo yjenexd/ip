@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Scanner;
 /**
  * Entry point for the David Goggins chatbot.
@@ -10,7 +11,6 @@ public class DavidGoggins {
     private static final String NAME = "David Goggins";
     private static final String DIVIDER = "_".repeat(60);
     private static final String BANNER = """
-    private static String
 
             +----------------------------------------------------------+
             |      ____      _    __     __ ___  ____                  |
@@ -36,6 +36,7 @@ public class DavidGoggins {
             |                     >> STAY HARD. <<                     |
             +----------------------------------------------------------+
             """.stripTrailing();
+    private static List<String> userInputList = new java.util.ArrayList<>(100);
 
     /** The command that ends the conversation. */
     private static final String EXIT_COMMAND = "bye";
@@ -43,7 +44,7 @@ public class DavidGoggins {
     public static void main(String[] args) {
         greet();
 
-        // try-with-resources closes the Scanner automatically when the loop ends.
+        // Scanner is used to read user input from the console. It is closed automatically at the end of the try block.
         try (Scanner scanner = new Scanner(System.in)) {
             // hasNextLine() returns false at end of input, so redirected input
             // that omits "bye" exits cleanly instead of throwing.
@@ -54,6 +55,15 @@ public class DavidGoggins {
                     break;
                 }
 
+                if (userInput.equalsIgnoreCase("list")) {
+                    System.out.println(DIVIDER);
+                    System.out.print(printUserInput(userInputList));
+                    System.out.println(DIVIDER);
+                    System.out.println();
+                    continue;
+                }
+
+                userInputList.add(userInput);
                 echo(userInput);
             }
         }
@@ -68,7 +78,7 @@ public class DavidGoggins {
      */
     private static void echo(String userInput) {
         System.out.println(DIVIDER);
-        System.out.println(" " + userInput);
+        System.out.println("added: " + userInput);
         System.out.println(DIVIDER);
         System.out.println();
     }
@@ -88,5 +98,16 @@ public class DavidGoggins {
         System.out.println(DIVIDER);
         System.out.println("Bye. Remember, stay hard!");
         System.out.println(DIVIDER);
+    }
+
+    /* Prints the list of user inputs. */
+    private static String printUserInput(List<String> userInput) {
+        StringBuilder sb = new StringBuilder();
+        int counter = 1;
+        for (String input : userInput) {
+            sb.append(counter).append(". ").append(input).append("\n");
+            counter++;
+        }
+        return sb.toString();
     }
 }
