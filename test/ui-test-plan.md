@@ -119,15 +119,15 @@ ____________________________________________________________
 {{FAREWELL}}
 ```
 
-### TC3: Adds tasks and lists them
+### TC3: Adds todos and lists them
 
-**Aim:** Checks that unrecognised input is stored as a task, that each addition is confirmed, and that `list` numbers the tasks from 1 with an unticked box.
+**Aim:** Checks that `todo` stores a task, that each addition is confirmed with the new list size, and that `list` numbers the tasks from 1 with a type box and an unticked status box.
 
 **Input:**
 
 ```text
-read book
-run 10 miles
+todo read book
+todo run 10 miles
 list
 bye
 ```
@@ -137,17 +137,21 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- added: read book
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
- added: run 10 miles
+ Got it. I've added this task:
+   [T][ ] run 10 miles
+ Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[ ] read book
- 2.[ ] run 10 miles
+ 1.[T][ ] read book
+ 2.[T][ ] run 10 miles
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -160,8 +164,8 @@ ____________________________________________________________
 **Input:**
 
 ```text
-read book
-run 10 miles
+todo read book
+todo run 10 miles
 mark 2
 list
 unmark 2
@@ -174,33 +178,37 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- added: read book
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
- added: run 10 miles
+ Got it. I've added this task:
+   [T][ ] run 10 miles
+ Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Nice! I've marked this task as done:
-   [X] run 10 miles
+   [T][X] run 10 miles
 ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[ ] read book
- 2.[X] run 10 miles
+ 1.[T][ ] read book
+ 2.[T][X] run 10 miles
 ____________________________________________________________
 
 ____________________________________________________________
  OK, I've marked this task as not done yet:
-   [ ] run 10 miles
+   [T][ ] run 10 miles
 ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[ ] read book
- 2.[ ] run 10 miles
+ 1.[T][ ] read book
+ 2.[T][ ] run 10 miles
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -213,7 +221,7 @@ ____________________________________________________________
 **Input:**
 
 ```text
-read book
+todo read book
 mark 5
 bye
 ```
@@ -223,7 +231,9 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- added: read book
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -240,7 +250,7 @@ ____________________________________________________________
 **Input:**
 
 ```text
-read book
+todo read book
 mark two
 unmark
 bye
@@ -251,7 +261,9 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- added: read book
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -272,7 +284,7 @@ ____________________________________________________________
 **Input:**
 
 ```text
-read book
+todo read book
 BYE
 ```
 
@@ -281,7 +293,9 @@ BYE
 ```text
 {{GREETING}}
 ____________________________________________________________
- added: read book
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -294,7 +308,7 @@ ____________________________________________________________
 **Input:**
 
 ```text
-read book
+todo read book
 ```
 
 **Expected output:**
@@ -302,7 +316,110 @@ read book
 ```text
 {{GREETING}}
 ____________________________________________________________
- added: read book
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC9: Adds each kind of task
+
+**Aim:** Checks the three task types end to end: `todo`, `deadline ... /by ...` and `event ... /from ... /to ...` are parsed, confirmed with the running list size, and shown by `list` with the right type box and details.
+
+**Input:**
+
+```text
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+todo join sports club
+mark 1
+mark 4
+todo borrow book
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: June 6th)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+ Now you have 3 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] join sports club
+ Now you have 4 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Nice! I've marked this task as done:
+   [T][X] read book
+____________________________________________________________
+
+____________________________________________________________
+ Nice! I've marked this task as done:
+   [T][X] join sports club
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] borrow book
+ Now you have 5 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: June 6th)
+ 3.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+ 4.[T][X] join sports club
+ 5.[T][ ] borrow book
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC10: Rejects an unrecognised command
+
+**Aim:** Checks that plain text with no command word is reported as unknown instead of being silently stored, now that every task must be added with `todo`, `deadline` or `event`.
+
+**Input:**
+
+```text
+read book
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ I don't know that command.
+____________________________________________________________
+
+____________________________________________________________
+ Your list is empty. Get after it!
 ____________________________________________________________
 
 {{FAREWELL}}
