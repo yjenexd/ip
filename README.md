@@ -15,12 +15,35 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    In the same dialog, set the **Project language level** field to the `SDK default` option.
 1. After that, locate the `src/main/java/DavidGoggins.java` file, right-click it, and choose `Run DavidGoggins.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see something like the below as the output:
    ```
-    ____             _     _  ____                _
-   |  _ \  __ ___   _(_) __| |/ ___| ___   __ _  __ _(_)_ __  ___
-   | | | |/ _` \ \ / / |/ _` | |  _ / _ \ / _` |/ _` | | '_ \/ __|
-   | |_| | (_| |\ V /| | (_| | |_| | (_) | (_| | (_| | | | | \__ \
-   |____/ \__,_| \_/ |_|\__,_|\____|\___/ \__, |\__, |_|_| |_|___/
-                                           |___/ |___/
+   ____________________________________________________________
+   +----------------------------------------------------------+
+   |      ____      _    __     __ ___  ____                  |
+   |     |  _ \    / \   \ \   / /|_ _||  _ \                 |
+   |     | | | |  / _ \   \ \ / /  | | | | | |                |
+   |     | |_| | / ___ \   \ V /   | | | |_| |                |
+   |     |____/ /_/   \_\   \_/   |___||____/                 |
+   |       ____   ___    ____   ____  ___  _   _  ____        |
+   |      / ___| / _ \  / ___| / ___||_ _|| \ | |/ ___|       |
+   |     | |  _ | | | || |  _ | |  _  | | |  \| |\___ \       |
+   |     | |_| || |_| || |_| || |_| | | | | |\  | ___) |      |
+   |      \____| \___/  \____| \____||___||_| \_||____/       |
+   |                                                          |
+   |       __                                       __        |
+   |      /  \                                     /  \       |
+   |     | ## |===================================| ## |      |
+   |     | ## |===================================| ## |      |
+   |      \__/                                     \__/       |
+   |                                                          |
+   |       "WHO'S GONNA CARRY THE BOATS AND THE LOGS?!"       |
+   |                 THEY DON'T KNOW ME, SON!                 |
+   |                                                          |
+   |                     >> STAY HARD. <<                     |
+   +----------------------------------------------------------+
+   Hello! I'm David Goggins.
+   What can I do for you?
+   ____________________________________________________________
+   Bye. Hope to see you again soon!
+   ____________________________________________________________
    ```
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
