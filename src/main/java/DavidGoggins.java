@@ -58,7 +58,13 @@ public class DavidGoggins {
                     break;
                 }
 
-                handleCommand(userInput);
+                try {
+                    handleCommand(userInput);
+                } catch (DavidGogginsException e) {
+                    // Every expected problem ends up here, so the error format is
+                    // defined once instead of in each command method.
+                    reply(" OOPS! " + e.getMessage());
+                }
             }
         }
 
@@ -73,21 +79,25 @@ public class DavidGoggins {
      * such as {@code read book} stays intact as a single argument.
      *
      * @param userInput the line the user typed, already trimmed
+     * @throws DavidGogginsException if the command is unknown or its details are wrong
      */
-    private static void handleCommand(String userInput) {
+    private static void handleCommand(String userInput) throws DavidGogginsException {
         // Limit of 2 stops the split after the first space, keeping the rest whole.
         String[] parts = userInput.split("\\s+", 2); //split the input into at most two parts
         String command = parts[0].toLowerCase();
-        String argument = parts.length > 1 ? parts[1] : ""; 
+        String argument = parts.length > 1 ? parts[1].trim() : "";
 
         switch (command) {
+        case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
         case "list" -> showTasks();
         case "mark" -> setDone(argument, true); // set the argument(number) task as done
         case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        case "todo" -> addTask(new Todo(argument));
+        case "todo" -> addTodo(argument);
         case "deadline" -> addDeadline(argument);
         case "event" -> addEvent(argument);
-        default -> reply(" I don't know that command.");
+        default -> throw new DavidGogginsException( //exception message for unknown command
+                "What are you saying! I don't know the command \"" + command + "\". "
+                        + "I understand: todo, deadline, event, list, mark, unmark, bye.");
         }
     }
 
@@ -105,20 +115,30 @@ public class DavidGoggins {
      *
      * @param argument the task number the user typed, as text
      * @param isDone   true to mark as done, false to mark as not done yet
+     * @throws DavidGogginsException if the number is missing, not a number, or out of range
      */
-    private static void setDone(String argument, boolean isDone) {
+    private static void setDone(String argument, boolean isDone) throws DavidGogginsException {
+        String commandName = isDone ? "mark" : "unmark";
+        if (argument.isEmpty()) {
+            throw new DavidGogginsException(
+                    "Tell me which task number NOW!, e.g. " + commandName + " 2.");
+        }
+
         int taskNumber;
         try {
             taskNumber = Integer.parseInt(argument);
         } catch (NumberFormatException e) {
-            // Covers both a missing number ("mark") and a non-number ("mark two").
-            reply(" Tell me which task number, e.g. mark 2.");
-            return;
+            // The user typed something like "mark two" or "mark 2 3".
+            throw new DavidGogginsException(
+                    "\"" + argument + "\" is not a task number you log! Use a whole number, e.g. "
+                            + commandName + " 2.");
         }
 
         if (!tasks.isValidTaskNumber(taskNumber)) {
-            reply(" There's no task " + taskNumber + " in your list.");
-            return;
+            String advice = tasks.size() == 0
+                    ? "your list is empty, so add a task first."
+                    : "pick a number from 1 to " + tasks.size() + ".";
+            throw new DavidGogginsException("There's no task " + taskNumber + " in your list: " + advice);
         }
 
         Task task = isDone ? tasks.mark(taskNumber) : tasks.unmark(taskNumber);
@@ -129,25 +149,82 @@ public class DavidGoggins {
     }
 
     /**
+     * Creates a todo from its description and adds it.
+     *
+     * @param argument everything the user typed after the word "todo"
+     * @throws DavidGogginsException if the description is empty
+     */
+    private static void addTodo(String argument) throws DavidGogginsException {
+        if (argument.isEmpty()) {
+            throw new DavidGogginsException(
+                    "The description of a todo cannot be empty you log! Try: todo read book");
+        }
+        addTask(new Todo(argument));
+    }
+
+    /**
      * Creates a deadline from {@code <description> /by <when>} and adds it.
      *
      * @param argument everything the user typed after the word "deadline"
+     * @throws DavidGogginsException if the description or the due time is missing
      */
-    private static void addDeadline(String argument) {
-        // Limit of 2 keeps the due time whole even if it contains spaces.
-        String[] parts = argument.split(" /by ", 2);
-        addTask(new Deadlines(parts[0], parts[1]));
+    private static void addDeadline(String argument) throws DavidGogginsException {
+        // Splitting on the bare keyword (rather than " /by ") lets us spot a
+        // "/by" with nothing after it instead of silently failing to split.
+        String[] parts = argument.split("/by", 2);
+        if (parts.length < 2) {
+            throw new DavidGogginsException(
+                    "A deadline needs a /by part you log! Try: deadline return book /by Sunday");
+        }
+
+        String description = parts[0].trim();
+        String by = parts[1].trim();
+        if (description.isEmpty()) {
+            throw new DavidGogginsException(
+                    "The description of a deadline cannot be empty you log! Try: deadline return book /by Sunday");
+        }
+        if (by.isEmpty()) {
+            throw new DavidGogginsException(
+                    "Tell me when it is due after /by you log! Try: deadline return book /by Sunday");
+        }
+        addTask(new Deadlines(description, by));
     }
 
     /**
      * Creates an event from {@code <description> /from <start> /to <end>} and adds it.
      *
      * @param argument everything the user typed after the word "event"
+     * @throws DavidGogginsException if the description, the start or the end is missing
      */
-    private static void addEvent(String argument) {
-        // One split on either keyword gives description, start and end in order.
-        String[] parts = argument.split(" /from | /to ", 3);
-        addTask(new Event(parts[0], parts[1], parts[2]));
+    private static void addEvent(String argument) throws DavidGogginsException {
+        String[] fromParts = argument.split("/from", 2);
+        if (fromParts.length < 2) { // user did not provide a /from part
+            throw new DavidGogginsException(
+                    "An event needs a /from part. Try: event project meeting /from Mon 2pm /to 4pm");
+        }
+
+        String[] toParts = fromParts[1].split("/to", 2);
+        if (toParts.length < 2) {
+            throw new DavidGogginsException( //user did not provide a /to part
+                    "An event needs a /to part after /from. Try: event project meeting /from Mon 2pm /to 4pm");
+        }
+
+        String description = fromParts[0].trim();
+        String from = toParts[0].trim();
+        String to = toParts[1].trim();
+        if (description.isEmpty()) {
+            throw new DavidGogginsException( //user did not provide a description
+                    "The description of an event cannot be empty. Try: event project meeting /from Mon 2pm /to 4pm");
+        }
+        if (from.isEmpty()) {
+            throw new DavidGogginsException(  //user did not provide a time after /from
+                    "Tell me when the event starts after /from. Try: event project meeting /from Mon 2pm /to 4pm");
+        }
+        if (to.isEmpty()) {
+            throw new DavidGogginsException( //user did not provide a time after /to
+                    "Tell me when the event ends after /to. Try: event project meeting /from Mon 2pm /to 4pm");
+        }
+        addTask(new Event(description, from, to));
     }
 
     /**
@@ -170,7 +247,7 @@ public class DavidGoggins {
      *
      * @param lines the lines to print, already spaced as they should appear
      */
-    private static void reply(String... lines) {
+    private static void reply(String... lines) { 
         System.out.println(DIVIDER);
         for (String line : lines) {
             System.out.println(line);

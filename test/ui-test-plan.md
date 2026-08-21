@@ -237,7 +237,7 @@ ____________________________________________________________
 ____________________________________________________________
 
 ____________________________________________________________
- There's no task 5 in your list.
+ OOPS! There's no task 5 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -245,7 +245,7 @@ ____________________________________________________________
 
 ### TC6: Rejects a missing or non-numeric task number
 
-**Aim:** Checks that `mark two` and a bare `unmark` both produce the guidance message rather than being stored as new tasks.
+**Aim:** Checks that `mark two` is reported as a non-numeric task number and that a bare `unmark` asks for a number, each naming the command the user actually typed, rather than being stored as new tasks.
 
 **Input:**
 
@@ -267,11 +267,11 @@ ____________________________________________________________
 ____________________________________________________________
 
 ____________________________________________________________
- Tell me which task number, e.g. mark 2.
+ OOPS! "two" is not a task number. Use a whole number, e.g. mark 2.
 ____________________________________________________________
 
 ____________________________________________________________
- Tell me which task number, e.g. mark 2.
+ OOPS! Tell me which task number, e.g. unmark 2.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -415,11 +415,203 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- I don't know that command.
+ OOPS! I don't know the command "read". I understand: todo, deadline, event, list, mark, unmark, bye.
 ____________________________________________________________
 
 ____________________________________________________________
  Your list is empty. Get after it!
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC11: Rejects a todo with no description
+
+**Aim:** Checks the second error required by Level 5: `todo` with nothing after it is refused with a message showing the correct form, and the following `list` confirms no blank task was stored.
+
+**Input:**
+
+```text
+todo
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ OOPS! The description of a todo cannot be empty. Try: todo read book
+____________________________________________________________
+
+____________________________________________________________
+ Your list is empty. Get after it!
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC12: Rejects malformed deadlines
+
+**Aim:** Checks each way a `deadline` can be incomplete — no `/by`, no description before `/by`, nothing after `/by` — and that a correct deadline typed straight afterwards still works, so the failed attempts left no half-built task behind.
+
+**Input:**
+
+```text
+deadline return book
+deadline /by Sunday
+deadline return book /by
+deadline return book /by Sunday
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ OOPS! A deadline needs a /by part. Try: deadline return book /by Sunday
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! The description of a deadline cannot be empty. Try: deadline return book /by Sunday
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! Tell me when it is due after /by. Try: deadline return book /by Sunday
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: Sunday)
+ Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[D][ ] return book (by: Sunday)
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC13: Rejects malformed events
+
+**Aim:** Checks each missing piece of an `event` — no `/from`, no `/to`, and an empty description, start or end — and that a correct event afterwards is still added as task 1, proving the rejected lines did not reach the list.
+
+**Input:**
+
+```text
+event project meeting
+event project meeting /from Mon 2pm
+event /from Mon 2pm /to 4pm
+event project meeting /from /to 4pm
+event project meeting /from Mon 2pm /to
+event project meeting /from Mon 2pm /to 4pm
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ OOPS! An event needs a /from part. Try: event project meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! An event needs a /to part after /from. Try: event project meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! The description of an event cannot be empty. Try: event project meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! Tell me when the event starts after /from. Try: event project meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! Tell me when the event ends after /to. Try: event project meeting /from Mon 2pm /to 4pm
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [E][ ] project meeting (from: Mon 2pm to: 4pm)
+ Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC14: Keeps the list intact across interleaved good and bad input
+
+**Aim:** Interleaves valid and invalid commands — a `mark` past the end, a blank line, an uppercase `TODO`, a valid `mark`, an empty `todo` — and checks with `list` after each stage that only the valid commands changed the stored tasks and their done status.
+
+**Input:**
+
+```text
+todo read book
+mark 2
+list
+
+TODO run 10 miles
+mark 2
+todo
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! There's no task 2 in your list: pick a number from 1 to 1.
+____________________________________________________________
+
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] read book
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! You typed nothing. Give me a command, e.g. list.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] run 10 miles
+ Now you have 2 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Nice! I've marked this task as done:
+   [T][X] run 10 miles
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! The description of a todo cannot be empty. Try: todo read book
+____________________________________________________________
+
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] read book
+ 2.[T][X] run 10 miles
 ____________________________________________________________
 
 {{FAREWELL}}
