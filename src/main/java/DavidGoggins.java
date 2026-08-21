@@ -76,14 +76,14 @@ public class DavidGoggins {
      */
     private static void handleCommand(String userInput) {
         // Limit of 2 stops the split after the first space, keeping the rest whole.
-        String[] parts = userInput.split("\\s+", 2);
+        String[] parts = userInput.split("\\s+", 2); //split the input into at most two parts
         String command = parts[0].toLowerCase();
-        String argument = parts.length > 1 ? parts[1] : "";
+        String argument = parts.length > 1 ? parts[1] : ""; 
 
         switch (command) {
         case "list" -> showTasks();
-        case "mark" -> setDone(argument, true);
-        case "unmark" -> setDone(argument, false);
+        case "mark" -> setDone(argument, true); // set the argument(number) task as done
+        case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
         default -> addTask(userInput);
         }
     }
