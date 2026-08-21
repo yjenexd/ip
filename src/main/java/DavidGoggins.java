@@ -4,8 +4,8 @@ import java.util.Scanner;
  * Entry point for the David Goggins chatbot.
  *
  * <p>Reads commands from the user until they type {@code bye}. Supported commands
- * are {@code list}, {@code mark <n>} and {@code unmark <n>}; any other input is
- * stored as a new task.
+ * are {@code todo}, {@code deadline}, {@code event}, {@code list}, {@code mark <n>}
+ * and {@code unmark <n>}.
  */
 public class DavidGoggins {
     /** The name the chatbot introduces itself by. */
@@ -84,7 +84,10 @@ public class DavidGoggins {
         case "list" -> showTasks();
         case "mark" -> setDone(argument, true); // set the argument(number) task as done
         case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        default -> addTask(userInput);
+        case "todo" -> addTask(new Todo(argument));
+        case "deadline" -> addDeadline(argument);
+        case "event" -> addEvent(argument);
+        default -> reply(" I don't know that command.");
         }
     }
 
@@ -126,13 +129,37 @@ public class DavidGoggins {
     }
 
     /**
-     * Adds a new task to the list and confirms it.
+     * Creates a deadline from {@code <description> /by <when>} and adds it.
      *
-     * @param description what the user has to do
+     * @param argument everything the user typed after the word "deadline"
      */
-    private static void addTask(String description) {
-        tasks.add(new Task(description));
-        reply(" added: " + description);
+    private static void addDeadline(String argument) {
+        // Limit of 2 keeps the due time whole even if it contains spaces.
+        String[] parts = argument.split(" /by ", 2);
+        addTask(new Deadlines(parts[0], parts[1]));
+    }
+
+    /**
+     * Creates an event from {@code <description> /from <start> /to <end>} and adds it.
+     *
+     * @param argument everything the user typed after the word "event"
+     */
+    private static void addEvent(String argument) {
+        // One split on either keyword gives description, start and end in order.
+        String[] parts = argument.split(" /from | /to ", 3);
+        addTask(new Event(parts[0], parts[1], parts[2]));
+    }
+
+    /**
+     * Adds a task to the list and confirms it, including the new list size.
+     *
+     * @param task the task to add
+     */
+    private static void addTask(Task task) {
+        tasks.add(task);
+        reply(" Got it. I've added this task:",
+                "   " + task,
+                " Now you have " + tasks.size() + " tasks in the list.");
     }
 
     /**

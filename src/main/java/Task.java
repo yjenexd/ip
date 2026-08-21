@@ -18,4 +18,9 @@ public abstract class Task {
     public void markAsDone() {
         isDone = true;
     }
+
+    /** Marks this task as not done yet, used by the {@code unmark} command. */
+    public void markAsNotDone() {
+        isDone = false;
+    }
 }
