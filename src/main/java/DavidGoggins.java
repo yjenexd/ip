@@ -1,3 +1,4 @@
+import java.util.Scanner;
 /**
  * Entry point for the David Goggins chatbot.
  *
@@ -9,6 +10,8 @@ public class DavidGoggins {
     private static final String NAME = "David Goggins";
     private static final String DIVIDER = "_".repeat(60);
     private static final String BANNER = """
+    private static String
+
             +----------------------------------------------------------+
             |      ____      _    __     __ ___  ____                  |
             |     |  _ \\    / \\   \\ \\   / /|_ _||  _ \\                 |
@@ -34,9 +37,40 @@ public class DavidGoggins {
             +----------------------------------------------------------+
             """.stripTrailing();
 
+    /** The command that ends the conversation. */
+    private static final String EXIT_COMMAND = "bye";
+
     public static void main(String[] args) {
         greet();
+
+        // try-with-resources closes the Scanner automatically when the loop ends.
+        try (Scanner scanner = new Scanner(System.in)) {
+            // hasNextLine() returns false at end of input, so redirected input
+            // that omits "bye" exits cleanly instead of throwing.
+            while (scanner.hasNextLine()) {
+                String userInput = scanner.nextLine().trim();
+
+                if (userInput.equalsIgnoreCase(EXIT_COMMAND)) {
+                    break;
+                }
+
+                echo(userInput);
+            }
+        }
+
         farewell();
+    }
+
+    /**
+     * Prints the user's command back to them, wrapped in dividers.
+     *
+     * @param userInput the line the user typed
+     */
+    private static void echo(String userInput) {
+        System.out.println(DIVIDER);
+        System.out.println(" " + userInput);
+        System.out.println(DIVIDER);
+        System.out.println();
     }
 
     /** Prints the banner and the opening greeting. */
@@ -45,12 +79,14 @@ public class DavidGoggins {
         System.out.println(BANNER);
         System.out.println("Hello! I'm " + NAME + ".");
         System.out.println("What can I do for you?");
+        System.out.println(DIVIDER);
+        System.out.println();
     }
 
     /** Prints the sign-off shown as the chatbot exits. */
     private static void farewell() {
         System.out.println(DIVIDER);
-        System.out.println("Bye. Hope to see you again soon!");
+        System.out.println("Bye. Remember, stay hard!");
         System.out.println(DIVIDER);
     }
 }
