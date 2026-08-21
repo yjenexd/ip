@@ -86,6 +86,7 @@ public class TaskList {
      */
     @Override
     public String toString() {
+
         StringBuilder lines = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
             if (i > 0) {
@@ -96,4 +97,11 @@ public class TaskList {
         }
         return lines.toString();
     }
+
+    public Task remove(int taskNumber) {
+        Task task = get(taskNumber);
+        tasks.remove(taskNumber - 1);
+        return task;
+    }
+
 }

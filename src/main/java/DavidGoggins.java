@@ -95,9 +95,10 @@ public class DavidGoggins {
         case "todo" -> addTodo(argument);
         case "deadline" -> addDeadline(argument);
         case "event" -> addEvent(argument);
+        case "delete" -> deleteTask(argument);
         default -> throw new DavidGogginsException( //exception message for unknown command
                 "What are you saying! I don't know the command \"" + command + "\". "
-                        + "I understand: todo, deadline, event, list, mark, unmark, bye.");
+                        + "I understand: todo, deadline, event, list, mark, unmark, delete, bye.");
         }
     }
 
@@ -228,17 +229,56 @@ public class DavidGoggins {
     }
 
     /**
+     * Returns the list size worded for a sentence: {@code "1 task"} but
+     * {@code "2 tasks"}.
+     *
+     * <p>Both the add and the delete confirmations need this, so it lives in one
+     * method rather than being written out (and mis-worded) in each of them.
+     */
+    private static String taskCount() {
+        int count = tasks.size();
+        return count + (count == 1 ? " task" : " tasks");
+    }
+
+    /**
      * Adds a task to the list and confirms it, including the new list size.
      *
      * @param task the task to add
      */
     private static void addTask(Task task) {
+
         tasks.add(task);
         reply(" Got it. I've added this task:",
                 "   " + task,
-                " Now you have " + tasks.size() + " tasks in the list.");
+                " Now you have " + taskCount() + " in the list.");
     }
 
+    private static void deleteTask(String argument) throws DavidGogginsException {
+        if (argument.isEmpty()) {
+            throw new DavidGogginsException(
+                    "Tell me which task number to delete, e.g. delete 2.");
+        }
+
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(argument);
+        } catch (NumberFormatException e) {
+            throw new DavidGogginsException( // The user typed something like "delete two" or "delete 2 3".
+                    "\"" + argument + "\" is not a task number you log! Use a whole number, e.g. delete 2.");
+        }
+
+        if (!tasks.isValidTaskNumber(taskNumber)) { // Check if the task number is valid, if not throw exception
+            String advice = tasks.size() == 0
+                    ? "your list is empty, so add a task first."
+                    : "pick a number from 1 to " + tasks.size() + ".";
+            throw new DavidGogginsException("There's no task " + taskNumber + " in your list: " + advice);
+        }
+
+        Task removedTask = tasks.remove(taskNumber);
+        reply(" Noted. I've removed this task:",
+                "   " + removedTask,
+                " Now you have " + taskCount() + " in the list.");
+    }
     /**
      * Prints one reply block: the given lines between two dividers.
      *
@@ -273,3 +313,4 @@ public class DavidGoggins {
         System.out.println(DIVIDER);
     }
 }
+
