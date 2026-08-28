@@ -200,7 +200,7 @@ public class DavidGoggins {
         String[] parts = argument.split("/by", 2);
         if (parts.length < 2) {
             throw new DavidGogginsException(
-                    "A deadline needs a /by part you log! Try: deadline return book /by Sunday");
+                    "A deadline needs a /by part you log! Try: deadline return book /by 2026-09-10");
         }
 
         String description = parts[0].trim();

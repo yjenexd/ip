@@ -24,7 +24,7 @@ public class Deadlines extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + (isDone ? "[X] " : "[ ] ") + description + " (by: " + this.by.format(DISPLAY_FORMATTER) + ")";
+        return "[D]" + (isDone ? "[X] " : "[ ] ") + description + " (by: " + this.by + ")";
     }
 
     /** Saved as {@code D | 0 | return book | Sunday}. */
