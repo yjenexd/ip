@@ -207,11 +207,11 @@ public class DavidGoggins {
         String by = parts[1].trim();
         if (description.isEmpty()) {
             throw new DavidGogginsException(
-                    "The description of a deadline cannot be empty you log! Try: deadline return book /by Sunday");
+                    "The description of a deadline cannot be empty you log! Try: deadline return book /by 2026-09-10");
         }
         if (by.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me when it is due after /by you log! Try: deadline return book /by Sunday");
+                    "Tell me when it is due after /by you log! Try: deadline return book /by 2026-09-10");
         }
         addTask(new Deadlines(description, by));
     }
@@ -226,13 +226,13 @@ public class DavidGoggins {
         String[] fromParts = argument.split("/from", 2);
         if (fromParts.length < 2) { // user did not provide a /from part
             throw new DavidGogginsException(
-                    "An event needs a /from part. Try: event project meeting /from Mon 2pm /to 4pm");
+                    "An event needs a /from part. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
 
         String[] toParts = fromParts[1].split("/to", 2);
         if (toParts.length < 2) {
             throw new DavidGogginsException( //user did not provide a /to part
-                    "An event needs a /to part after /from. Try: event project meeting /from Mon 2pm /to 4pm");
+                    "An event needs a /to part after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
 
         String description = fromParts[0].trim();
@@ -240,15 +240,15 @@ public class DavidGoggins {
         String to = toParts[1].trim();
         if (description.isEmpty()) {
             throw new DavidGogginsException( //user did not provide a description
-                    "The description of an event cannot be empty. Try: event project meeting /from Mon 2pm /to 4pm");
+                    "The description of an event cannot be empty. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
         if (from.isEmpty()) {
             throw new DavidGogginsException(  //user did not provide a time after /from
-                    "Tell me when the event starts after /from. Try: event project meeting /from Mon 2pm /to 4pm");
+                    "Tell me when the event starts after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
         if (to.isEmpty()) {
             throw new DavidGogginsException( //user did not provide a time after /to
-                    "Tell me when the event ends after /to. Try: event project meeting /from Mon 2pm /to 4pm");
+                    "Tell me when the event ends after /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
         addTask(new Event(description, from, to));
     }

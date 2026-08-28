@@ -46,4 +46,74 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    ____________________________________________________________
    ```
 
+## Commands
+
+Type a command at the prompt and press Enter. Command words are case-insensitive
+(`LIST` works the same as `list`); task descriptions keep the case you typed.
+
+| Command | Format | Example |
+| --- | --- | --- |
+| Add a todo | `todo <description>` | `todo read book` |
+| Add a deadline | `deadline <description> /by <yyyy-mm-dd>` | `deadline return book /by 2026-09-10` |
+| Add an event | `event <description> /from <yyyy-mm-dd> /to <yyyy-mm-dd>` | `event project meeting /from 2026-09-10 /to 2026-09-11` |
+| List all tasks | `list` | `list` |
+| Mark as done | `mark <task number>` | `mark 2` |
+| Mark as not done | `unmark <task number>` | `unmark 2` |
+| Delete a task | `delete <task number>` | `delete 2` |
+| Exit | `bye` | `bye` |
+
+Task numbers are the numbers shown by `list`, starting at 1.
+
+### Example session
+
+```
+todo read book
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 task in the list.
+____________________________________________________________
+
+deadline return book /by 2026-09-10
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: 2026-09-10)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+
+mark 1
+____________________________________________________________
+ Nice! I've marked this task as done:
+   [T][X] read book
+____________________________________________________________
+
+list
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: 2026-09-10)
+____________________________________________________________
+```
+
+### Saving
+
+Tasks are saved automatically to `data/tasks.txt` after every change, and reloaded
+when the program starts, so your list survives between runs. The path is relative to
+the folder you run the program from, so launch from the project root. The `data`
+folder is created for you on the first save; you do not need to make it yourself.
+
+The file holds one task per line, with fields separated by `|`. The second field is
+`1` for a done task and `0` for one still outstanding:
+
+```text
+T | 1 | read book
+D | 0 | return book | 2026-09-10
+E | 0 | project meeting | 2026-09-10 | 2026-09-11
+```
+
+Because `|` separates the fields, it cannot appear in a task's own text; the program
+refuses such a task rather than saving something it could not read back. If a line of
+the file is unreadable for any other reason, it is skipped with a warning and the
+remaining tasks still load.
+
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.

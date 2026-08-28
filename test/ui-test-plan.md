@@ -22,6 +22,21 @@ three fields:
 * `**Expected output:**` — a fenced block holding the console output the program
   should produce for that input, from the first line to the last.
 
+Two further fields are optional, and are only needed by test cases about saving
+and loading:
+
+* `**Saved file:**` — a fenced block holding the contents of `data/tasks.txt` to
+  put in place *before* the run. Use it to test loading. Omit it entirely and the
+  run starts with no save file at all, which is what a first run on a new machine
+  looks like; give it an empty block for an existing but empty file.
+* `**Expected saved file:**` — a fenced block holding the contents `data/tasks.txt`
+  should have *after* the run. Use it to test saving. Omit it and the file is not
+  checked.
+
+Each test case runs in its own empty working directory. Without that, a case
+would inherit the tasks saved by the case before it, and the order the cases
+happen to run in would change their results.
+
 Comparison ignores differences that are invisible on screen: line-ending style,
 trailing spaces at the end of a line, and blank lines at the very end of the
 output. Everything else must match character for character.
@@ -361,8 +376,8 @@ ____________________________________________________________
 
 ```text
 todo read book
-deadline return book /by June 6th
-event project meeting /from Aug 6th 2pm /to 4pm
+deadline return book /by 2026-06-06
+event project meeting /from 2026-08-06 /to 2026-08-07
 todo join sports club
 mark 1
 mark 4
@@ -383,13 +398,13 @@ ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] return book (by: June 6th)
+   [D][ ] return book (by: 2026-06-06)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+   [E][ ] project meeting (from: 2026-08-06 to: 2026-08-07)
  Now you have 3 tasks in the list.
 ____________________________________________________________
 
@@ -418,8 +433,8 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] read book
- 2.[D][ ] return book (by: June 6th)
- 3.[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+ 2.[D][ ] return book (by: 2026-06-06)
+ 3.[E][ ] project meeting (from: 2026-08-06 to: 2026-08-07)
  4.[T][X] join sports club
  5.[T][ ] borrow book
 ____________________________________________________________
@@ -489,9 +504,9 @@ ____________________________________________________________
 
 ```text
 deadline return book
-deadline /by Sunday
+deadline /by 2026-09-13
 deadline return book /by
-deadline return book /by Sunday
+deadline return book /by 2026-09-13
 list
 bye
 ```
@@ -501,26 +516,26 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! A deadline needs a /by part you log! Try: deadline return book /by Sunday
+ OOPS! A deadline needs a /by part you log! Try: deadline return book /by 2026-09-10
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! The description of a deadline cannot be empty you log! Try: deadline return book /by Sunday
+ OOPS! The description of a deadline cannot be empty you log! Try: deadline return book /by 2026-09-10
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me when it is due after /by you log! Try: deadline return book /by Sunday
+ OOPS! Tell me when it is due after /by you log! Try: deadline return book /by 2026-09-10
 ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: 2026-09-13)
  Now you have 1 task in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[D][ ] return book (by: Sunday)
+ 1.[D][ ] return book (by: 2026-09-13)
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -534,11 +549,11 @@ ____________________________________________________________
 
 ```text
 event project meeting
-event project meeting /from Mon 2pm
-event /from Mon 2pm /to 4pm
+event project meeting /from 2026-09-14
+event /from 2026-09-14 /to 2026-09-15
 event project meeting /from /to 4pm
-event project meeting /from Mon 2pm /to
-event project meeting /from Mon 2pm /to 4pm
+event project meeting /from 2026-09-14 /to
+event project meeting /from 2026-09-14 /to 2026-09-15
 list
 bye
 ```
@@ -548,34 +563,34 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! An event needs a /from part. Try: event project meeting /from Mon 2pm /to 4pm
+ OOPS! An event needs a /from part. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! An event needs a /to part after /from. Try: event project meeting /from Mon 2pm /to 4pm
+ OOPS! An event needs a /to part after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! The description of an event cannot be empty. Try: event project meeting /from Mon 2pm /to 4pm
+ OOPS! The description of an event cannot be empty. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me when the event starts after /from. Try: event project meeting /from Mon 2pm /to 4pm
+ OOPS! Tell me when the event starts after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me when the event ends after /to. Try: event project meeting /from Mon 2pm /to 4pm
+ OOPS! Tell me when the event ends after /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   [E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
  Now you have 1 task in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+ 1.[E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -654,8 +669,8 @@ ____________________________________________________________
 
 ```text
 todo read book
-deadline return book /by Sunday
-event project meeting /from Mon 2pm /to 4pm
+deadline return book /by 2026-09-13
+event project meeting /from 2026-09-14 /to 2026-09-15
 mark 3
 delete 1
 list
@@ -676,19 +691,19 @@ ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: 2026-09-13)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   [E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
  Now you have 3 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
  Nice! I've marked this task as done:
-   [E][X] project meeting (from: Mon 2pm to: 4pm)
+   [E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
 ____________________________________________________________
 
 ____________________________________________________________
@@ -699,19 +714,19 @@ ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[D][ ] return book (by: Sunday)
- 2.[E][X] project meeting (from: Mon 2pm to: 4pm)
+ 1.[D][ ] return book (by: 2026-09-13)
+ 2.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
 ____________________________________________________________
 
 ____________________________________________________________
  Nice! I've marked this task as done:
-   [D][X] return book (by: Sunday)
+   [D][X] return book (by: 2026-09-13)
 ____________________________________________________________
 
 ____________________________________________________________
  Here are the tasks in your list:
- 1.[D][X] return book (by: Sunday)
- 2.[E][X] project meeting (from: Mon 2pm to: 4pm)
+ 1.[D][X] return book (by: 2026-09-13)
+ 2.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -794,7 +809,7 @@ ____________________________________________________________
    ToDo    read book
 LIST
    
-DEADLINE return book /by   Sunday
+DEADLINE return book /by   2026-09-13
 MARK 1
 list
 BYE
@@ -821,7 +836,7 @@ ____________________________________________________________
 
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: 2026-09-13)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 
@@ -833,7 +848,7 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] read book
- 2.[D][ ] return book (by: Sunday)
+ 2.[D][ ] return book (by: 2026-09-13)
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -911,4 +926,263 @@ ____________________________________________________________
 ____________________________________________________________
 
 {{FAREWELL}}
+```
+
+### TC19: Saves every change to the data file
+
+**Aim:** Checks that adding, marking and deleting are each written through to `data/tasks.txt` in the storage format, so nothing is lost if the program stops.
+
+**Input:**
+
+```text
+todo read book
+deadline return book /by 2026-09-13
+event project meeting /from 2026-09-14 /to 2026-09-15
+mark 1
+delete 2
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 task in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: 2026-09-13)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
+ Now you have 3 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Nice! I've marked this task as done:
+   [T][X] read book
+____________________________________________________________
+
+____________________________________________________________
+ Noted. I've removed this task:
+   [D][ ] return book (by: 2026-09-13)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+**Expected saved file:**
+
+```text
+T | 1 | read book
+E | 0 | project meeting | 2026-09-14 | 2026-09-15
+```
+
+### TC20: Loads saved tasks when the program starts
+
+**Aim:** Checks that a task list saved by an earlier run comes back, with each kind of task rebuilt and its done status preserved, and that new tasks are numbered after the loaded ones.
+
+**Saved file:**
+
+```text
+T | 1 | read book
+D | 0 | return book | 2026-09-13
+E | 1 | project meeting | 2026-09-14 | 2026-09-15
+```
+
+**Input:**
+
+```text
+list
+todo run 10 miles
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: 2026-09-13)
+ 3.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] run 10 miles
+ Now you have 4 tasks in the list.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+**Expected saved file:**
+
+```text
+T | 1 | read book
+D | 0 | return book | 2026-09-13
+E | 1 | project meeting | 2026-09-14 | 2026-09-15
+T | 0 | run 10 miles
+```
+
+### TC21: Starts with an empty list when there is no data file
+
+**Aim:** Checks the first run on a new machine: with no `data/` folder and no save file, the program starts normally and says nothing about the missing file, then creates the file when the list first changes.
+
+**Input:**
+
+```text
+list
+todo read book
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Your list is empty. Get after it!
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 task in the list.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+**Expected saved file:**
+
+```text
+T | 0 | read book
+```
+
+### TC22: Ignores a save file that is empty or blank
+
+**Aim:** Checks that an existing but empty save file, and stray blank lines in one, are treated as "no tasks" rather than as corruption.
+
+**Saved file:**
+
+```text
+
+T | 0 | read book
+
+```
+
+**Input:**
+
+```text
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] read book
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC23: Skips corrupted lines and keeps the readable ones
+
+**Aim:** Checks the stretch goal. Each line of the save file can be malformed in a different way — an unknown type, a done flag that is not 0 or 1, too few fields, too many, an empty field, no separators at all — and none of them should stop the program starting. The readable lines must still load, and the user must be told how many were dropped.
+
+**Saved file:**
+
+```text
+T | 1 | read book
+X | 0 | unknown type marker
+D | 2 | done flag is not 0 or 1 | 2026-09-13
+T | 0
+E | 0 | too few fields for an event | 2026-09-14
+E | 0 | too many fields | Mon | 4pm | extra
+D | 0 | empty due date |
+T | 0 |
+no separators at all
+D | 0 | return book | 2026-09-13
+```
+
+**Input:**
+
+```text
+list
+bye
+```
+
+**Expected output:**
+
+```text
+ Warning: skipped 8 unreadable lines in data/tasks.txt. They will be dropped the next time the list changes.
+{{GREETING}}
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: 2026-09-13)
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC24: Refuses a task containing the field separator
+
+**Aim:** Checks the round-trip hazard: a description containing the `|` used to separate fields in the save file would be written as an extra field and could not be read back, so it is refused up front. Ends with a valid task to show the list is unharmed.
+
+**Input:**
+
+```text
+todo read book | now
+deadline return book /by 2026-09-13 | Monday
+todo read book
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ OOPS! A task cannot contain the "|" character, since that is what I use to separate fields when saving. Drop it and try again.
+____________________________________________________________
+
+____________________________________________________________
+ OOPS! A task cannot contain the "|" character, since that is what I use to separate fields when saving. Drop it and try again.
+____________________________________________________________
+
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 task in the list.
+____________________________________________________________
+
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] read book
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+**Expected saved file:**
+
+```text
+T | 0 | read book
 ```

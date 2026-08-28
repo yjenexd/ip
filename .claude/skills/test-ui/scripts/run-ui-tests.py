@@ -26,13 +26,19 @@ CASE_HEADING = re.compile(r"^###\s+(?P<id>\S+?):\s*(?P<title>.+?)\s*$")
 # A reusable output snippet starts at a level-4 heading such as "#### GREETING".
 SNIPPET_HEADING = re.compile(r"^####\s+(?P<name>[A-Za-z][A-Za-z0-9_]*)\s*$")
 # Field labels inside a test case, e.g. "**Aim:** ..." or "**Input:**".
-FIELD_LABEL = re.compile(r"^\*\*(?P<name>Aim|Input|Expected output):?\*\*:?\s*(?P<inline>.*)$",
-                         re.IGNORECASE)
+FIELD_LABEL = re.compile(
+    r"^\*\*(?P<name>Aim|Input|Expected output|Saved file|Expected saved file):?\*\*:?"
+    r"\s*(?P<inline>.*)$",
+    re.IGNORECASE)
 FENCE = re.compile(r"^```")
 # A snippet reference inside an expected output, e.g. "{{GREETING}}".
 PLACEHOLDER = re.compile(r"\{\{\s*(?P<name>[A-Za-z][A-Za-z0-9_]*)\s*\}\}")
 
-FIELD_NAMES = {"aim": "Aim", "input": "Input", "expected output": "Expected output"}
+FIELD_NAMES = {"aim": "Aim", "input": "Input", "expected output": "Expected output",
+               "saved file": "Saved file", "expected saved file": "Expected saved file"}
+
+# Where the program keeps its saved task list, relative to the working directory.
+SAVE_FILE = Path("data") / "tasks.txt"
 
 
 class TestPlanError(Exception):
@@ -40,12 +46,18 @@ class TestPlanError(Exception):
 
 
 class TestCase:
-    def __init__(self, case_id, title, aim, input_lines, expected):
+    def __init__(self, case_id, title, aim, input_lines, expected,
+                 saved_file=None, expected_saved_file=None):
         self.case_id = case_id
         self.title = title
         self.aim = aim
         self.input_lines = input_lines
         self.expected = expected
+        # The save file to put in place before the run, or None to start with no
+        # save file at all (which is what a first run on a new machine looks like).
+        self.saved_file = saved_file
+        # The save file the run should leave behind, or None not to check it.
+        self.expected_saved_file = expected_saved_file
 
 
 def expand_snippets(text, snippets, case_id):
@@ -102,6 +114,8 @@ def parse_plan(path):
             aim=case["fields"]["Aim"].strip(),
             input_lines=case["fields"]["Input"].splitlines(),
             expected=case["fields"]["Expected output"],
+            saved_file=case["fields"].get("Saved file"),
+            expected_saved_file=case["fields"].get("Expected saved file"),
         ))
 
     for line in lines:
@@ -185,21 +199,66 @@ def normalise(text):
 
 
 def run_case(case, classes_dir, main_class, timeout):
-    """Runs one test case and returns (passed, actual_output)."""
+    """Runs one test case and returns (passed, actual_output, file_problem).
+
+    Each case runs in its own empty working directory. The program saves its task
+    list to ./data/tasks.txt, so cases sharing a directory would inherit each
+    other's tasks and the order the cases were run in would change their results.
+    """
     stdin_data = "\n".join(case.input_lines)
     if stdin_data:
         stdin_data += "\n"
+
+    work_dir = Path(tempfile.mkdtemp(prefix=f"ui-test-{case.case_id}-"))
     try:
-        result = subprocess.run(
-            ["java", "-cp", str(classes_dir), main_class],
-            input=stdin_data, capture_output=True, text=True, timeout=timeout,
-        )
-    except subprocess.TimeoutExpired:
-        return False, f"<test case timed out after {timeout}s>"
-    # stderr is folded in so an unexpected stack trace shows up as a failure
-    # rather than disappearing.
-    actual = result.stdout + (("\n" + result.stderr) if result.stderr.strip() else "")
-    return normalise(actual) == normalise(case.expected), actual
+        if case.saved_file is not None:
+            save_path = work_dir / SAVE_FILE
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+            body = case.saved_file
+            save_path.write_text(body + "\n" if body else "", encoding="utf-8")
+        try:
+            result = subprocess.run(
+                ["java", "-cp", str(classes_dir), main_class],
+                input=stdin_data, capture_output=True, text=True, timeout=timeout,
+                cwd=work_dir,
+            )
+        except subprocess.TimeoutExpired:
+            return False, f"<test case timed out after {timeout}s>", None
+
+        # stderr is folded in so an unexpected stack trace shows up as a failure
+        # rather than disappearing.
+        actual = result.stdout + (("\n" + result.stderr) if result.stderr.strip() else "")
+        passed = normalise(actual) == normalise(case.expected)
+
+        file_problem = check_saved_file(case, work_dir)
+        return passed and file_problem is None, actual, file_problem
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+def check_saved_file(case, work_dir):
+    """Returns a description of how the saved file differs from what was expected.
+
+    Returns None when the case does not check the saved file, or when it matches.
+    """
+    if case.expected_saved_file is None:
+        return None
+
+    save_path = work_dir / SAVE_FILE
+    expected = normalise(case.expected_saved_file)
+    if not save_path.exists():
+        if expected == "":
+            return None
+        return f"expected {SAVE_FILE} to be written, but no such file exists"
+
+    actual = normalise(save_path.read_text(encoding="utf-8"))
+    if actual == expected:
+        return None
+    diff = "\n".join(difflib.unified_diff(
+        expected.split("\n"), actual.split("\n"),
+        fromfile="expected " + str(SAVE_FILE), tofile="actual " + str(SAVE_FILE),
+        lineterm=""))
+    return f"the saved file does not match:\n{diff}"
 
 
 def print_transcript(case, actual):
@@ -215,7 +274,7 @@ def print_transcript(case, actual):
     print()
 
 
-def report_failure(case, actual):
+def report_failure(case, actual, file_problem=None):
     print("=" * 70)
     print(f"FAILED: {case.case_id}: {case.title}")
     print(f"Aim: {case.aim}")
@@ -232,6 +291,9 @@ def report_failure(case, actual):
     )
     for line in diff:
         print(line)
+    if file_problem is not None:
+        print("\n--- SAVED FILE ---")
+        print(file_problem)
     print()
     print("Test session terminated at the first failure; "
           "later test cases were not run.")
@@ -276,10 +338,11 @@ def main():
             print("=" * 70 + "\n")
 
             for index, case in enumerate(selected, start=1):
-                passed, actual = run_case(case, classes_dir, args.main_class, args.timeout)
+                passed, actual, file_problem = run_case(
+                    case, classes_dir, args.main_class, args.timeout)
                 print_transcript(case, actual)
                 if not passed:
-                    report_failure(case, actual)
+                    report_failure(case, actual, file_problem)
                     print(f"\nRESULT: {index - 1} passed, 1 failed, "
                           f"{len(selected) - index} not run.")
                     return 1
