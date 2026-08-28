@@ -1,4 +1,5 @@
-public class Event extends Task{
+/** A task that runs from one time to another. */
+public class Event extends Task {
     private final String from;
     private final String to;
 
@@ -12,5 +13,11 @@ public class Event extends Task{
     public String toString() {
         return "[E]" + (isDone ? "[X] " : "[ ] ") + description + " (from: " + from + " to: " + to + ")";
     }
-    
+
+    /** Saved as {@code E | 0 | project meeting | Mon 2pm | 4pm}. */
+    @Override
+    public String toSaveFormat() {
+        return "E" + SEPARATOR + doneFlag() + SEPARATOR + description
+                + SEPARATOR + from + SEPARATOR + to;
+    }
 }

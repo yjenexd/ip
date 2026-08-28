@@ -45,6 +45,9 @@ public class DavidGoggins {
     private static final String EXIT_COMMAND = "bye";
 
     public static void main(String[] args) {
+        // Loaded before the greeting so any warning about the saved file appears
+        // before the banner rather than interrupting the conversation later.
+        tasks.load();
         greet();
 
         // Scanner is used to read user input from the console. It is closed automatically at the end of the try block.
@@ -92,14 +95,36 @@ public class DavidGoggins {
         case "list" -> showTasks();
         case "mark" -> setDone(argument, true); // set the argument(number) task as done
         case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        case "todo" -> addTodo(argument);
-        case "deadline" -> addDeadline(argument);
-        case "event" -> addEvent(argument);
+        case "todo" -> addTodo(rejectSeparator(argument));
+        case "deadline" -> addDeadline(rejectSeparator(argument));
+        case "event" -> addEvent(rejectSeparator(argument));
         case "delete" -> deleteTask(argument);
         default -> throw new DavidGogginsException( //exception message for unknown command
                 "What are you saying! I don't know the command \"" + command + "\". "
                         + "I understand: todo, deadline, event, list, mark, unmark, delete, bye.");
         }
+    }
+
+    /**
+     * Returns the argument unchanged, or refuses it if it contains the character used
+     * to separate fields in the save file.
+     *
+     * <p>A description such as {@code read book | now} would be written as an extra
+     * field and could not be read back, so it is rejected up front rather than being
+     * silently mangled. Escaping the character would also work and would accept more
+     * input, but it makes both the writer and the reader harder to follow; refusing one
+     * rarely used character is the simpler trade for a task list.
+     *
+     * @param argument everything the user typed after the command word
+     * @throws DavidGogginsException if the argument contains the separator character
+     */
+    private static String rejectSeparator(String argument) throws DavidGogginsException {
+        if (argument.contains(Task.SEPARATOR_CHAR)) {
+            throw new DavidGogginsException("A task cannot contain the \""
+                    + Task.SEPARATOR_CHAR + "\" character, since that is what I use to "
+                    + "separate fields when saving. Drop it and try again.");
+        }
+        return argument;
     }
 
     /** Prints every task, numbered from 1. */
