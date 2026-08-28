@@ -5,25 +5,35 @@
  * are {@code todo}, {@code deadline}, {@code event}, {@code list}, {@code mark <n>}
  * and {@code unmark <n>}.
  *
- * <p>This class works out what each command means and what to say in response; the
- * {@link Ui} it holds decides how that response actually looks on screen, and the
- * {@link TaskList} holds the tasks themselves.
+ * <p>This class works out what each command means and what to say in response. The
+ * {@link Ui} it holds decides how that response actually looks on screen, the
+ * {@link TaskList} holds the tasks themselves, and the {@link Storage} keeps them on
+ * disk between runs.
  */
 public class DavidGoggins {
+
+    /** Where the task list is kept between runs, relative to the folder we run in. */
+    private static final String FILE_PATH = "data/tasks.txt";
 
     /** Handles all reading from and writing to the console. */
     private static final Ui ui = new Ui();
 
-    /** The tasks the user has added so far. */
-    private static final TaskList tasks = new TaskList();
+    /** Reads the saved list at start-up and writes it back whenever it changes. */
+    private static final Storage storage = new Storage(FILE_PATH, ui);
+
+    /**
+     * The tasks the user has added so far.
+     *
+     * <p>Fields are initialised in the order they are written, so the list is loaded --
+     * and any warning about the save file printed -- before main() prints the greeting,
+     * which is where such a warning belongs.
+     */
+    private static final TaskList tasks = new TaskList(storage);
 
     /** The command that ends the conversation. */
     private static final String EXIT_COMMAND = "bye";
 
     public static void main(String[] args) {
-        // Loaded before the greeting so any warning about the saved file appears
-        // before the banner rather than interrupting the conversation later.
-        tasks.load();
         ui.showWelcome();
 
         try {

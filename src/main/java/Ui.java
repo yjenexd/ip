@@ -21,6 +21,9 @@ public class Ui {
     /** The prefix put in front of every error message shown to the user. */
     private static final String ERROR_PREFIX = " OOPS! ";
 
+    /** The prefix put in front of every housekeeping warning shown to the user. */
+    private static final String WARNING_PREFIX = " Warning: ";
+
     private static final String BANNER = """
 
             +----------------------------------------------------------+
@@ -99,6 +102,20 @@ public class Ui {
      */
     public void showError(String message) {
         show(ERROR_PREFIX + message);
+    }
+
+    /**
+     * Reports a problem the program worked around, such as a save that did not happen.
+     *
+     * <p>Printed as a bare line rather than inside a divider block, because it is an
+     * aside about the program's housekeeping and not part of the conversation: it
+     * appears before the greeting at start-up, where a reply block would look like an
+     * answer to a command the user never typed.
+     *
+     * @param message the explanation to show, without the "Warning:" label
+     */
+    public void showWarning(String message) {
+        System.out.println(WARNING_PREFIX + message);
     }
 
     /** Prints the banner and the opening greeting. */

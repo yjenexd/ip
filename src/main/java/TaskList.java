@@ -1,9 +1,3 @@
-import java.io.IOException;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,20 +15,33 @@ public class TaskList {
      * ArrayList rather than a plain array because the list grows as the user
      * adds tasks, and we do not know the final size in advance.
      */
-    private final ArrayList<Task> tasks = new ArrayList<>();
+    private final ArrayList<Task> tasks;
+
+    /** Used to write the list back to disk whenever it changes. */
+    private final Storage storage;
 
     /**
-     * Where the list is saved between runs.
+     * Starts from the tasks already on disk.
      *
-     * <p>Built with {@link Path#of} rather than a string such as {@code "data/tasks.txt"}
-     * so the correct separator is used on every OS, and kept relative to the folder the
-     * program is run from so it works on any machine.
+     * @param storage where the list is loaded from and saved to
      */
-    private final Path file = Path.of("data", "tasks.txt");
+    public TaskList(Storage storage) {
+        this.storage = storage;
+        this.tasks = new ArrayList<>(storage.load());
+    }
 
-    // No constructor is declared, so Java supplies an empty one. The folder is not
-    // created here: a run that never changes the list should not leave a stray
-    // ./data/ folder behind. save() creates it at the moment it is actually needed.
+    /**
+     * Starts from a list given directly, without reading the save file.
+     *
+     * <p>Provided so this class can be built and tested without touching the disk.
+     *
+     * @param storage where later changes are saved to
+     * @param tasks   the tasks to start with
+     */
+    public TaskList(Storage storage, List<Task> tasks) {
+        this.storage = storage;
+        this.tasks = new ArrayList<>(tasks);
+    }
 
     /**
      * Adds a task to the end of the list.
@@ -128,124 +135,14 @@ public class TaskList {
     }
 
     /**
-     * Writes the whole list to ./data/tasks.txt, replacing whatever was there before.
+     * Writes the current list to disk.
      *
-     * <p>The entire file is rewritten on every change rather than appending one line,
-     * because {@code delete}, {@code mark} and {@code unmark} alter lines that are
-     * already written, and a file has no "replace line 2" operation.
+     * <p>Called by every method that changes the list, rather than by the command
+     * handlers, so that "the save file matches the list" holds by construction. Moving
+     * the call out to the callers would create several places that each have to
+     * remember it, and one that forgets would silently lose the user's change.
      */
     private void save() {
-        StringBuilder lines = new StringBuilder();
-        for (Task task : tasks) {
-            lines.append(task.toSaveFormat()).append(System.lineSeparator());
-        }
-
-        Path temporary = null;
-        try {
-            // createDirectories (plural) makes any missing parent folders and does
-            // nothing if they already exist, unlike createDirectory which throws.
-            Path parent = file.getParent();
-            if (parent != null) { // null only if the path were a bare file name
-                Files.createDirectories(parent);
-            }
-
-            // The new list is written to a temporary file first and only then moved
-            // into place. Writing straight to the real file would empty it before the
-            // new contents were written, so a crash or a full disk part-way through
-            // would leave the user with no tasks at all rather than the previous ones.
-            // The temporary file goes in the same folder so the move stays on one disk.
-            temporary = Files.createTempFile(parent, "tasks", ".tmp");
-            Files.writeString(temporary, lines.toString());
-            replace(temporary, file);
-            temporary = null; // the move consumed it, so there is nothing left to clean up
-        } catch (IOException e) {
-            // Saving is a background chore, so a failure warns the user but does not
-            // stop the command they asked for from succeeding in memory.
-            System.out.println(" Warning: could not save your tasks to " + file
-                    + " (" + e.getMessage() + "). Your last change is in this session only.");
-        } finally {
-            deleteIfPresent(temporary);
-        }
+        storage.save(tasks);
     }
-
-    /**
-     * Moves {@code source} onto {@code target}, replacing it.
-     *
-     * <p>An atomic move is preferred, because it means a reader can only ever see the
-     * old file or the new one, never a half-written mixture. Not every file system
-     * supports it, so a plain replacing move is used when it is refused.
-     */
-    private static void replace(Path source, Path target) throws IOException {
-        try {
-            Files.move(source, target,
-                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (AtomicMoveNotSupportedException e) {
-            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        }
-    }
-
-    /** Removes a leftover temporary file, ignoring any further failure. */
-    private static void deleteIfPresent(Path path) {
-        if (path == null) {
-            return;
-        }
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException e) {
-            // Nothing useful can be done about a temporary file that will not delete,
-            // and the user has already been told the save itself failed.
-        }
-    }
-
-    /**
-     * Loads any previously saved tasks into this list.
-     *
-     * <p>Called once at start-up. Three situations are handled separately because the
-     * right response differs for each:
-     * <ul>
-     *   <li><b>No file yet</b> — the normal first run on a new machine. Start empty, say nothing.</li>
-     *   <li><b>File unreadable</b> — warn, then start empty rather than refusing to run.</li>
-     *   <li><b>A line is corrupted</b> — skip that line, keep the good ones, and warn.</li>
-     * </ul>
-     */
-    public void load() {
-        // Cleared first so calling this twice reloads rather than adding a second copy
-        // of every task.
-        tasks.clear();
-
-        List<String> lines;
-        try {
-            lines = Files.readAllLines(file);
-        } catch (NoSuchFileException e) {
-            // Expected on a first run, so this is not worth telling the user about.
-            // Caught before IOException because it is a subclass of it.
-            return;
-        } catch (IOException e) {
-            // Covers an unreadable file, a folder where the file should be, and so on.
-            System.out.println(" Warning: could not read your saved tasks ("
-                    + e.getMessage() + "). Starting with an empty list.");
-            return;
-        }
-
-        int skipped = 0;
-        for (String line : lines) {
-            if (line.isBlank()) {
-                continue; // a stray blank line is harmless, not corruption
-            }
-            try {
-                // tasks.add, not this.add: add() saves, and rewriting the file part-way
-                // through loading would delete the corrupted lines before the user is told.
-                tasks.add(Task.fromSaveFormat(line));
-            } catch (DavidGogginsException e) {
-                skipped++;
-            }
-        }
-
-        if (skipped > 0) {
-            System.out.println(" Warning: skipped " + skipped + " unreadable line"
-                    + (skipped == 1 ? "" : "s") + " in " + file
-                    + ". They will be dropped the next time the list changes.");
-        }
-    }
-
 }
