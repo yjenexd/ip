@@ -1,7 +1,9 @@
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,6 +140,7 @@ public class TaskList {
             lines.append(task.toSaveFormat()).append(System.lineSeparator());
         }
 
+        Path temporary = null;
         try {
             // createDirectories (plural) makes any missing parent folders and does
             // nothing if they already exist, unlike createDirectory which throws.
@@ -145,11 +148,52 @@ public class TaskList {
             if (parent != null) { // null only if the path were a bare file name
                 Files.createDirectories(parent);
             }
-            Files.writeString(file, lines.toString());
+
+            // The new list is written to a temporary file first and only then moved
+            // into place. Writing straight to the real file would empty it before the
+            // new contents were written, so a crash or a full disk part-way through
+            // would leave the user with no tasks at all rather than the previous ones.
+            // The temporary file goes in the same folder so the move stays on one disk.
+            temporary = Files.createTempFile(parent, "tasks", ".tmp");
+            Files.writeString(temporary, lines.toString());
+            replace(temporary, file);
+            temporary = null; // the move consumed it, so there is nothing left to clean up
         } catch (IOException e) {
             // Saving is a background chore, so a failure warns the user but does not
             // stop the command they asked for from succeeding in memory.
-            System.out.println(" Warning: could not save your tasks (" + e.getMessage() + ").");
+            System.out.println(" Warning: could not save your tasks to " + file
+                    + " (" + e.getMessage() + "). Your last change is in this session only.");
+        } finally {
+            deleteIfPresent(temporary);
+        }
+    }
+
+    /**
+     * Moves {@code source} onto {@code target}, replacing it.
+     *
+     * <p>An atomic move is preferred, because it means a reader can only ever see the
+     * old file or the new one, never a half-written mixture. Not every file system
+     * supports it, so a plain replacing move is used when it is refused.
+     */
+    private static void replace(Path source, Path target) throws IOException {
+        try {
+            Files.move(source, target,
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /** Removes a leftover temporary file, ignoring any further failure. */
+    private static void deleteIfPresent(Path path) {
+        if (path == null) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            // Nothing useful can be done about a temporary file that will not delete,
+            // and the user has already been told the save itself failed.
         }
     }
 
@@ -165,6 +209,10 @@ public class TaskList {
      * </ul>
      */
     public void load() {
+        // Cleared first so calling this twice reloads rather than adding a second copy
+        // of every task.
+        tasks.clear();
+
         List<String> lines;
         try {
             lines = Files.readAllLines(file);
