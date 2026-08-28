@@ -1,42 +1,18 @@
-import java.util.Scanner;
-
 /**
  * Entry point for the David Goggins chatbot.
  *
  * <p>Reads commands from the user until they type {@code bye}. Supported commands
  * are {@code todo}, {@code deadline}, {@code event}, {@code list}, {@code mark <n>}
  * and {@code unmark <n>}.
+ *
+ * <p>This class works out what each command means and what to say in response; the
+ * {@link Ui} it holds decides how that response actually looks on screen, and the
+ * {@link TaskList} holds the tasks themselves.
  */
 public class DavidGoggins {
-    /** The name the chatbot introduces itself by. */
-    private static final String NAME = "David Goggins";
-    private static final String DIVIDER = "_".repeat(60);
-    private static final String BANNER = """
 
-            +----------------------------------------------------------+
-            |      ____      _    __     __ ___  ____                  |
-            |     |  _ \\    / \\   \\ \\   / /|_ _||  _ \\                 |
-            |     | | | |  / _ \\   \\ \\ / /  | | | | | |                |
-            |     | |_| | / ___ \\   \\ V /   | | | |_| |                |
-            |     |____/ /_/   \\_\\   \\_/   |___||____/                 |
-            |       ____   ___    ____   ____  ___  _   _  ____        |
-            |      / ___| / _ \\  / ___| / ___||_ _|| \\ | |/ ___|       |
-            |     | |  _ | | | || |  _ | |  _  | | |  \\| |\\___ \\       |
-            |     | |_| || |_| || |_| || |_| | | | | |\\  | ___) |      |
-            |      \\____| \\___/  \\____| \\____||___||_| \\_||____/       |
-            |                                                          |
-            |       __                                       __        |
-            |      /  \\                                     /  \\       |
-            |     | ## |===================================| ## |      |
-            |     | ## |===================================| ## |      |
-            |      \\__/                                     \\__/       |
-            |                                                          |
-            |       "WHO'S GONNA CARRY THE BOATS AND THE LOGS?!"       |
-            |                 THEY DON'T KNOW ME, SON!                 |
-            |                                                          |
-            |                     >> STAY HARD. <<                     |
-            +----------------------------------------------------------+
-            """.stripTrailing();
+    /** Handles all reading from and writing to the console. */
+    private static final Ui ui = new Ui();
 
     /** The tasks the user has added so far. */
     private static final TaskList tasks = new TaskList();
@@ -48,14 +24,13 @@ public class DavidGoggins {
         // Loaded before the greeting so any warning about the saved file appears
         // before the banner rather than interrupting the conversation later.
         tasks.load();
-        greet();
+        ui.showWelcome();
 
-        // Scanner is used to read user input from the console. It is closed automatically at the end of the try block.
-        try (Scanner scanner = new Scanner(System.in)) {
-            // hasNextLine() returns false at end of input, so redirected input
-            // that omits "bye" exits cleanly instead of throwing.
-            while (scanner.hasNextLine()) {
-                String userInput = scanner.nextLine().trim();
+        try {
+            // hasNextCommand() is false at end of input, so redirected input that
+            // omits "bye" exits cleanly instead of throwing.
+            while (ui.hasNextCommand()) {
+                String userInput = ui.readCommand();
 
                 if (userInput.equalsIgnoreCase(EXIT_COMMAND)) {
                     break;
@@ -66,12 +41,15 @@ public class DavidGoggins {
                 } catch (DavidGogginsException e) {
                     // Every expected problem ends up here, so the error format is
                     // defined once instead of in each command method.
-                    reply(" OOPS! " + e.getMessage());
+                    ui.showError(e.getMessage());
                 }
             }
+        } finally {
+            // finally, so the input is released even if a command fails unexpectedly.
+            ui.close();
         }
 
-        farewell();
+        ui.showFarewell();
     }
 
     /**
@@ -130,10 +108,10 @@ public class DavidGoggins {
     /** Prints every task, numbered from 1. */
     private static void showTasks() {
         if (tasks.size() == 0) {
-            reply(" Your list is empty. Get after it!");
+            ui.show(" Your list is empty. Get after it!");
             return;
         }
-        reply(" Here are the tasks in your list:", tasks.toString());
+        ui.show(" Here are the tasks in your list:", tasks.toString());
     }
 
     /**
@@ -171,7 +149,7 @@ public class DavidGoggins {
         String message = isDone
                 ? " Nice! I've marked this task as done:"
                 : " OK, I've marked this task as not done yet:";
-        reply(message, "   " + task);
+        ui.show(message, "   " + task);
     }
 
     /**
@@ -273,7 +251,7 @@ public class DavidGoggins {
     private static void addTask(Task task) {
 
         tasks.add(task);
-        reply(" Got it. I've added this task:",
+        ui.show(" Got it. I've added this task:",
                 "   " + task,
                 " Now you have " + taskCount() + " in the list.");
     }
@@ -300,42 +278,8 @@ public class DavidGoggins {
         }
 
         Task removedTask = tasks.remove(taskNumber);
-        reply(" Noted. I've removed this task:",
+        ui.show(" Noted. I've removed this task:",
                 "   " + removedTask,
                 " Now you have " + taskCount() + " in the list.");
     }
-    /**
-     * Prints one reply block: the given lines between two dividers.
-     *
-     * <p>Every response has this same shape, so keeping it in one place means the
-     * layout is defined once rather than repeated in each command.
-     *
-     * @param lines the lines to print, already spaced as they should appear
-     */
-    private static void reply(String... lines) { 
-        System.out.println(DIVIDER);
-        for (String line : lines) {
-            System.out.println(line);
-        }
-        System.out.println(DIVIDER);
-        System.out.println();
-    }
-
-    /** Prints the banner and the opening greeting. */
-    private static void greet() {
-        System.out.println(DIVIDER);
-        System.out.println(BANNER);
-        System.out.println("Hello! I'm " + NAME + ".");
-        System.out.println("What can I do for you?");
-        System.out.println(DIVIDER);
-        System.out.println();
-    }
-
-    /** Prints the sign-off shown as the chatbot exits. */
-    private static void farewell() {
-        System.out.println(DIVIDER);
-        System.out.println("Bye. Remember, stay hard!");
-        System.out.println(DIVIDER);
-    }
 }
-
