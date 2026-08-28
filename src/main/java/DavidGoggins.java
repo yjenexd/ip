@@ -15,25 +15,44 @@ public class DavidGoggins {
     /** Where the task list is kept between runs, relative to the folder we run in. */
     private static final String FILE_PATH = "data/tasks.txt";
 
-    /** Handles all reading from and writing to the console. */
-    private static final Ui ui = new Ui();
-
-    /** Reads the saved list at start-up and writes it back whenever it changes. */
-    private static final Storage storage = new Storage(FILE_PATH, ui);
-
-    /**
-     * The tasks the user has added so far.
-     *
-     * <p>Fields are initialised in the order they are written, so the list is loaded --
-     * and any warning about the save file printed -- before main() prints the greeting,
-     * which is where such a warning belongs.
-     */
-    private static final TaskList tasks = new TaskList(storage);
-
     /** The command that ends the conversation. */
     private static final String EXIT_COMMAND = "bye";
 
-    public static void main(String[] args) {
+    /** Handles all reading from and writing to the console. */
+    private final Ui ui;
+
+    /** Reads the saved list at start-up and writes it back whenever it changes. */
+    private final Storage storage;
+
+    /** The tasks the user has added so far. */
+    private final TaskList tasks;
+
+    /**
+     * Builds a chatbot that keeps its tasks in the given file.
+     *
+     * <p>The three parts are created here, in this order, because each needs the one
+     * before it: Storage reports a bad save file through the Ui, and TaskList loads
+     * itself through the Storage. Loading in the constructor rather than in run() also
+     * means any warning about the save file is printed before the greeting, which is
+     * where it belongs -- afterwards it would look like a reply to a command.
+     *
+     * <p>The file path is a parameter rather than a constant inside Storage so that the
+     * one decision about <em>where</em> tasks live is made here, in the class that
+     * assembles the program, instead of being buried in the class that does the saving.
+     *
+     * @param filePath where to keep the saved list, e.g. {@code "data/tasks.txt"}
+     */
+    public DavidGoggins(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath, ui);
+        tasks = new TaskList(storage);
+    }
+
+    /**
+     * Greets the user, then reads and carries out commands until they type {@code bye}
+     * or the input runs out.
+     */
+    public void run() {
         ui.showWelcome();
 
         try {
@@ -62,6 +81,10 @@ public class DavidGoggins {
         ui.showFarewell();
     }
 
+    public static void main(String[] args) {
+        new DavidGoggins(FILE_PATH).run();
+    }
+
     /**
      * Works out which command the user typed and carries it out.
      *
@@ -71,7 +94,7 @@ public class DavidGoggins {
      * @param userInput the line the user typed, already trimmed
      * @throws DavidGogginsException if the command is unknown or its details are wrong
      */
-    private static void handleCommand(String userInput) throws DavidGogginsException {
+    private void handleCommand(String userInput) throws DavidGogginsException {
         String command = Parser.parseCommand(userInput);
         String argument = Parser.parseArgument(userInput);
 
@@ -91,7 +114,7 @@ public class DavidGoggins {
     }
 
     /** Prints every task, numbered from 1. */
-    private static void showTasks() {
+    private void showTasks() {
         if (tasks.size() == 0) {
             ui.show(" Your list is empty. Get after it!");
             return;
@@ -106,7 +129,7 @@ public class DavidGoggins {
      * @param isDone   true to mark as done, false to mark as not done yet
      * @throws DavidGogginsException if the number is missing, not a number, or out of range
      */
-    private static void setDone(String argument, boolean isDone) throws DavidGogginsException {
+    private void setDone(String argument, boolean isDone) throws DavidGogginsException {
         String commandName = isDone ? "mark" : "unmark";
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
@@ -136,7 +159,7 @@ public class DavidGoggins {
      * <p>Both the add and the delete confirmations need this, so it lives in one
      * method rather than being written out (and mis-worded) in each of them.
      */
-    private static String taskCount() {
+    private String taskCount() {
         int count = tasks.size();
         return count + (count == 1 ? " task" : " tasks");
     }
@@ -146,7 +169,7 @@ public class DavidGoggins {
      *
      * @param task the task to add
      */
-    private static void addTask(Task task) {
+    private void addTask(Task task) {
 
         tasks.add(task);
         ui.show(" Got it. I've added this task:",
@@ -154,7 +177,7 @@ public class DavidGoggins {
                 " Now you have " + taskCount() + " in the list.");
     }
 
-    private static void deleteTask(String argument) throws DavidGogginsException {
+    private void deleteTask(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
                     "Tell me which task number to delete, e.g. delete 2.");
