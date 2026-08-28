@@ -65,54 +65,29 @@ public class DavidGoggins {
     /**
      * Works out which command the user typed and carries it out.
      *
-     * <p>The input is split into the command word and the rest of the line, so that
-     * {@code mark 2} gives {@code "mark"} and {@code "2"}, while a task description
-     * such as {@code read book} stays intact as a single argument.
+     * <p>The parsing is left to {@link Parser}; what is left here is the decision about
+     * which task-list operation each command maps to, and what to say afterwards.
      *
      * @param userInput the line the user typed, already trimmed
      * @throws DavidGogginsException if the command is unknown or its details are wrong
      */
     private static void handleCommand(String userInput) throws DavidGogginsException {
-        // Limit of 2 stops the split after the first space, keeping the rest whole.
-        String[] parts = userInput.split("\\s+", 2); //split the input into at most two parts
-        String command = parts[0].toLowerCase();
-        String argument = parts.length > 1 ? parts[1].trim() : "";
+        String command = Parser.parseCommand(userInput);
+        String argument = Parser.parseArgument(userInput);
 
         switch (command) {
         case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
         case "list" -> showTasks();
         case "mark" -> setDone(argument, true); // set the argument(number) task as done
         case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        case "todo" -> addTodo(rejectSeparator(argument));
-        case "deadline" -> addDeadline(rejectSeparator(argument));
-        case "event" -> addEvent(rejectSeparator(argument));
+        case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
+        case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
+        case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
         case "delete" -> deleteTask(argument);
         default -> throw new DavidGogginsException( //exception message for unknown command
                 "What are you saying! I don't know the command \"" + command + "\". "
                         + "I understand: todo, deadline, event, list, mark, unmark, delete, bye.");
         }
-    }
-
-    /**
-     * Returns the argument unchanged, or refuses it if it contains the character used
-     * to separate fields in the save file.
-     *
-     * <p>A description such as {@code read book | now} would be written as an extra
-     * field and could not be read back, so it is rejected up front rather than being
-     * silently mangled. Escaping the character would also work and would accept more
-     * input, but it makes both the writer and the reader harder to follow; refusing one
-     * rarely used character is the simpler trade for a task list.
-     *
-     * @param argument everything the user typed after the command word
-     * @throws DavidGogginsException if the argument contains the separator character
-     */
-    private static String rejectSeparator(String argument) throws DavidGogginsException {
-        if (argument.contains(Task.SEPARATOR_CHAR)) {
-            throw new DavidGogginsException("A task cannot contain the \""
-                    + Task.SEPARATOR_CHAR + "\" character, since that is what I use to "
-                    + "separate fields when saving. Drop it and try again.");
-        }
-        return argument;
     }
 
     /** Prints every task, numbered from 1. */
@@ -138,15 +113,7 @@ public class DavidGoggins {
                     "Tell me which task number NOW!, e.g. " + commandName + " 2.");
         }
 
-        int taskNumber;
-        try {
-            taskNumber = Integer.parseInt(argument);
-        } catch (NumberFormatException e) {
-            // The user typed something like "mark two" or "mark 2 3".
-            throw new DavidGogginsException(
-                    "\"" + argument + "\" is not a task number you log! Use a whole number, e.g. "
-                            + commandName + " 2.");
-        }
+        int taskNumber = Parser.parseTaskNumber(argument, commandName);
 
         if (!tasks.isValidTaskNumber(taskNumber)) {
             String advice = tasks.size() == 0
@@ -160,85 +127,6 @@ public class DavidGoggins {
                 ? " Nice! I've marked this task as done:"
                 : " OK, I've marked this task as not done yet:";
         ui.show(message, "   " + task);
-    }
-
-    /**
-     * Creates a todo from its description and adds it.
-     *
-     * @param argument everything the user typed after the word "todo"
-     * @throws DavidGogginsException if the description is empty
-     */
-    private static void addTodo(String argument) throws DavidGogginsException {
-        if (argument.isEmpty()) {
-            throw new DavidGogginsException(
-                    "The description of a todo cannot be empty you log! Try: todo read book");
-        }
-        addTask(new Todo(argument));
-    }
-
-    /**
-     * Creates a deadline from {@code <description> /by <when>} and adds it.
-     *
-     * @param argument everything the user typed after the word "deadline"
-     * @throws DavidGogginsException if the description or the due time is missing
-     */
-    private static void addDeadline(String argument) throws DavidGogginsException {
-        // Splitting on the bare keyword (rather than " /by ") lets us spot a
-        // "/by" with nothing after it instead of silently failing to split.
-        String[] parts = argument.split("/by", 2);
-        if (parts.length < 2) {
-            throw new DavidGogginsException(
-                    "A deadline needs a /by part you log! Try: deadline return book /by 2026-09-10");
-        }
-
-        String description = parts[0].trim();
-        String by = parts[1].trim();
-        if (description.isEmpty()) {
-            throw new DavidGogginsException(
-                    "The description of a deadline cannot be empty you log! Try: deadline return book /by 2026-09-10");
-        }
-        if (by.isEmpty()) {
-            throw new DavidGogginsException(
-                    "Tell me when it is due after /by you log! Try: deadline return book /by 2026-09-10");
-        }
-        addTask(new Deadlines(description, by));
-    }
-
-    /**
-     * Creates an event from {@code <description> /from <start> /to <end>} and adds it.
-     *
-     * @param argument everything the user typed after the word "event"
-     * @throws DavidGogginsException if the description, the start or the end is missing
-     */
-    private static void addEvent(String argument) throws DavidGogginsException {
-        String[] fromParts = argument.split("/from", 2);
-        if (fromParts.length < 2) { // user did not provide a /from part
-            throw new DavidGogginsException(
-                    "An event needs a /from part. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
-        }
-
-        String[] toParts = fromParts[1].split("/to", 2);
-        if (toParts.length < 2) {
-            throw new DavidGogginsException( //user did not provide a /to part
-                    "An event needs a /to part after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
-        }
-
-        String description = fromParts[0].trim();
-        String from = toParts[0].trim();
-        String to = toParts[1].trim();
-        if (description.isEmpty()) {
-            throw new DavidGogginsException( //user did not provide a description
-                    "The description of an event cannot be empty. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
-        }
-        if (from.isEmpty()) {
-            throw new DavidGogginsException(  //user did not provide a time after /from
-                    "Tell me when the event starts after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
-        }
-        if (to.isEmpty()) {
-            throw new DavidGogginsException( //user did not provide a time after /to
-                    "Tell me when the event ends after /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
-        }
-        addTask(new Event(description, from, to));
     }
 
     /**
@@ -272,13 +160,7 @@ public class DavidGoggins {
                     "Tell me which task number to delete, e.g. delete 2.");
         }
 
-        int taskNumber;
-        try {
-            taskNumber = Integer.parseInt(argument);
-        } catch (NumberFormatException e) {
-            throw new DavidGogginsException( // The user typed something like "delete two" or "delete 2 3".
-                    "\"" + argument + "\" is not a task number you log! Use a whole number, e.g. delete 2.");
-        }
+        int taskNumber = Parser.parseTaskNumber(argument, "delete");
 
         if (!tasks.isValidTaskNumber(taskNumber)) { // Check if the task number is valid, if not throw exception
             String advice = tasks.size() == 0
