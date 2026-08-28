@@ -1,15 +1,13 @@
+package davidgoggins.task;
+
+import davidgoggins.DavidGogginsException;
+
 /**
  * Represents a single task in the user's list: a description plus whether it is done.
  *
- * <p>A task knows how to render itself two ways:
- * <ul>
- *   <li>{@link #toString()} — the display form shown to the user, e.g. {@code [T][X] read book}</li>
- *   <li>{@link #toSaveFormat()} — the storage form written to disk, e.g. {@code T | 1 | read book}</li>
- * </ul>
- *
- * <p>These are deliberately different. The display form is built for reading; the storage
- * form is built for being read <em>back</em>, with each field kept separate so loading is a
- * simple split rather than a hunt through punctuation.
+ * <p>Renders itself two ways: {@link #toString()} for display, e.g.
+ * {@code [T][X] read book}, and {@link #toSaveFormat()} for disk, e.g.
+ * {@code T | 1 | read book}, whose separate fields make loading a split, not a hunt.
  */
 public abstract class Task {
     /**
@@ -51,10 +49,9 @@ public abstract class Task {
     /**
      * Rebuilds a task from one line of the save file.
      *
-     * <p>This is the reverse of {@link #toSaveFormat()}, but it cannot be an instance
-     * method: when a line is read there is no object yet to call a method on. It is
-     * therefore a {@code static} factory that inspects the type marker and decides which
-     * constructor to call.
+     * <p>The reverse of {@link #toSaveFormat()}, but {@code static}: when a line is read
+     * there is no object yet to call a method on, so this factory inspects the type
+     * marker and decides which constructor to call.
      *
      * @param line one line from the save file
      * @return the task the line describes

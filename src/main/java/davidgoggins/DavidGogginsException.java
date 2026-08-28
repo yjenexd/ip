@@ -1,14 +1,11 @@
+package davidgoggins;
+
 /**
  * Signals that the chatbot cannot carry out what the user asked for.
  *
- * <p>Using a dedicated exception type (rather than, say, printing the message on
- * the spot) keeps the detection of a problem separate from the reporting of it:
- * each command method simply throws with a helpful message, and the main loop is
- * the single place that decides how errors are shown to the user.
- *
- * <p>It extends {@link Exception} rather than {@link RuntimeException} so the
- * compiler forces every caller to deal with it, which makes it hard to forget a
- * case as more commands are added.
+ * <p>Each command method throws with a helpful message and the main loop is the single
+ * place that decides how it is shown. Extends {@link Exception} rather than
+ * {@link RuntimeException}, so the compiler forces every caller to deal with it.
  */
 public class DavidGogginsException extends Exception {
     /**

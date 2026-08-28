@@ -1,15 +1,22 @@
+package davidgoggins.parser;
+
+import davidgoggins.DavidGogginsException;
+import davidgoggins.task.Deadlines;
+import davidgoggins.task.Event;
+import davidgoggins.task.Task;
+import davidgoggins.task.Todo;
+
 /**
  * Deals with making sense of what the user typed.
  *
- * <p>Everything here turns text into something the rest of the program can act on: a
- * command word, a task number, or a ready-built {@link Task}. Nothing here touches the
- * task list or prints anything, so the rules about what counts as valid input are all
- * in one file and can be read without also reading the command handling.
- *
- * <p>All the methods are {@code static} because parsing needs no state: the same input
- * always gives the same result, so there is nothing for an instance to remember.
+ * <p>Turns text into something the rest of the program can act on: a command word, a
+ * task number, or a ready-built {@link Task}. Nothing here touches the task list or
+ * prints anything, so every rule about what counts as valid input is in this one file.
  */
 public class Parser {
+
+    // Every method below is static because parsing needs no state: the same input
+    // always gives the same result, so there is nothing for an instance to remember.
 
     /**
      * Returns the command word the user typed, lower-cased.
@@ -47,19 +54,19 @@ public class Parser {
     }
 
     /**
-     * Returns the argument unchanged, or refuses it if it contains the character used
-     * to separate fields in the save file.
+     * Returns the argument unchanged, or refuses it if it holds the save file's
+     * separator character.
      *
      * <p>A description such as {@code read book | now} would be written as an extra
-     * field and could not be read back, so it is rejected up front rather than being
-     * silently mangled. Escaping the character would also work and would accept more
-     * input, but it makes both the writer and the reader harder to follow; refusing one
-     * rarely used character is the simpler trade for a task list.
+     * field and could not be read back, so it is refused rather than mangled.
      *
      * @param argument everything the user typed after the command word
      * @throws DavidGogginsException if the argument contains the separator character
      */
     public static String rejectSeparator(String argument) throws DavidGogginsException {
+        // Escaping the character would accept more input, but it makes both the writer
+        // and the reader harder to follow; refusing one rarely used character is the
+        // simpler trade for a task list.
         if (argument.contains(Task.SEPARATOR_CHAR)) {
             throw new DavidGogginsException("A task cannot contain the \""
                     + Task.SEPARATOR_CHAR + "\" character, since that is what I use to "

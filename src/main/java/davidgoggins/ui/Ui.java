@@ -1,15 +1,13 @@
+package davidgoggins.ui;
+
 import java.util.Scanner;
 
 /**
  * Deals with everything the user sees and types.
  *
- * <p>All console reading and writing is gathered here, so the rest of the program can
- * say <em>what</em> to tell the user without repeating <em>how</em> a message is laid
- * out. That means the divider width, the banner and the "OOPS!" error prefix are each
- * written once, and changing the look of the chatbot is a change to this class alone.
- *
- * <p>Input is read here too, rather than only output, because reading a command and
- * printing a reply are two halves of the same conversation with the user.
+ * <p>All console reading and writing is gathered here, so the divider width, the banner
+ * and the "OOPS!" error prefix are written once and the look of the chatbot changes in
+ * this class alone. Input belongs here too: a command and its reply are one exchange.
  */
 public class Ui {
     /** The name the chatbot introduces itself by. */
@@ -107,10 +105,9 @@ public class Ui {
     /**
      * Reports a problem the program worked around, such as a save that did not happen.
      *
-     * <p>Printed as a bare line rather than inside a divider block, because it is an
-     * aside about the program's housekeeping and not part of the conversation: it
-     * appears before the greeting at start-up, where a reply block would look like an
-     * answer to a command the user never typed.
+     * <p>Printed as a bare line rather than inside a divider block: it appears before
+     * the greeting at start-up, where a reply block would look like an answer to a
+     * command the user never typed.
      *
      * @param message the explanation to show, without the "Warning:" label
      */

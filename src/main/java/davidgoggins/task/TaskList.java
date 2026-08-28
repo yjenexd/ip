@@ -1,13 +1,16 @@
+package davidgoggins.task;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import davidgoggins.storage.Storage;
 
 /**
  * Holds the user's tasks in the order they were added.
  *
- * <p>Task numbers used by the {@code list}, {@code mark} and {@code unmark} commands
- * are 1-based, matching what the user sees. This class does the conversion to the
- * 0-based {@link ArrayList} indices internally, so callers only ever deal in the
- * numbers the user typed.
+ * <p>Task numbers used by {@code list}, {@code mark} and {@code unmark} are 1-based,
+ * matching what the user sees; the conversion to 0-based {@link ArrayList} indices
+ * happens here, so callers only ever deal in the numbers the user typed.
  */
 public class TaskList {
 
@@ -138,9 +141,8 @@ public class TaskList {
      * Writes the current list to disk.
      *
      * <p>Called by every method that changes the list, rather than by the command
-     * handlers, so that "the save file matches the list" holds by construction. Moving
-     * the call out to the callers would create several places that each have to
-     * remember it, and one that forgets would silently lose the user's change.
+     * handlers, so that "the save file matches the list" holds by construction instead
+     * of depending on every caller remembering.
      */
     private void save() {
         storage.save(tasks);

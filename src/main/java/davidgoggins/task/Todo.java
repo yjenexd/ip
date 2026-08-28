@@ -1,3 +1,5 @@
+package davidgoggins.task;
+
 /** A task with only a description and no date attached. */
 public class Todo extends Task {
 

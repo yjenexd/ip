@@ -1,3 +1,5 @@
+package davidgoggins.storage;
+
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -7,18 +9,16 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import davidgoggins.DavidGogginsException;
+import davidgoggins.task.Task;
+import davidgoggins.ui.Ui;
+
 /**
  * Deals with loading tasks from the save file and writing them back to it.
  *
- * <p>This is the only class that knows a file is involved at all. {@link TaskList} asks
- * it to load or save and is told nothing about paths, temporary files or IO errors, so
- * the rules about <em>how</em> tasks are stored can change without the rest of the
- * program noticing.
- *
- * <p>A failed load or save is reported to the user through the {@link Ui} and then
- * shrugged off, rather than thrown. Saving is a background chore: a user who cannot
- * write to disk should still be able to use the chatbot for the rest of the session,
- * and a user with an unreadable file should still get a working (if empty) list.
+ * <p>The only class that knows a file is involved: {@link davidgoggins.task.TaskList} asks it to load or
+ * save and hears nothing about paths or IO errors. A failure is reported through the
+ * {@link Ui} and then shrugged off, so the session survives an unwritable disk.
  */
 public class Storage {
 
@@ -120,15 +120,9 @@ public class Storage {
     /**
      * Reads the previously saved tasks back off disk.
      *
-     * <p>Called once at start-up. Three situations are handled separately because the
-     * right response differs for each:
-     * <ul>
-     *   <li><b>No file yet</b> — the normal first run on a new machine. Return an empty
-     *       list, say nothing.</li>
-     *   <li><b>File unreadable</b> — warn, then return an empty list rather than
-     *       refusing to run.</li>
-     *   <li><b>A line is corrupted</b> — skip that line, keep the good ones, and warn.</li>
-     * </ul>
+     * <p>Called once at start-up. A missing file, an unreadable file and a corrupted
+     * line are each survivable and handled separately below: start-up always continues,
+     * with a warning where the user would otherwise wonder where their tasks went.
      *
      * @return the tasks that could be read, which may be an empty list
      */

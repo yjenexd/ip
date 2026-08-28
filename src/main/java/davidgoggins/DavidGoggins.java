@@ -1,14 +1,17 @@
+package davidgoggins;
+
+import davidgoggins.parser.Parser;
+import davidgoggins.storage.Storage;
+import davidgoggins.task.Task;
+import davidgoggins.task.TaskList;
+import davidgoggins.ui.Ui;
+
 /**
  * Entry point for the David Goggins chatbot.
  *
- * <p>Reads commands from the user until they type {@code bye}. Supported commands
- * are {@code todo}, {@code deadline}, {@code event}, {@code list}, {@code mark <n>}
- * and {@code unmark <n>}.
- *
- * <p>This class works out what each command means and what to say in response. The
- * {@link Ui} it holds decides how that response actually looks on screen, the
- * {@link TaskList} holds the tasks themselves, and the {@link Storage} keeps them on
- * disk between runs.
+ * <p>Reads commands until the user types {@code bye}: {@code todo}, {@code deadline},
+ * {@code event}, {@code list}, {@code mark <n>} and {@code unmark <n>}. {@link Ui} owns
+ * the screen, {@link TaskList} the tasks and {@link Storage} the disk between runs.
  */
 public class DavidGoggins {
 
@@ -30,20 +33,16 @@ public class DavidGoggins {
     /**
      * Builds a chatbot that keeps its tasks in the given file.
      *
-     * <p>The three parts are created here, in this order, because each needs the one
-     * before it: Storage reports a bad save file through the Ui, and TaskList loads
-     * itself through the Storage. Loading in the constructor rather than in run() also
-     * means any warning about the save file is printed before the greeting, which is
-     * where it belongs -- afterwards it would look like a reply to a command.
-     *
-     * <p>The file path is a parameter rather than a constant inside Storage so that the
-     * one decision about <em>where</em> tasks live is made here, in the class that
-     * assembles the program, instead of being buried in the class that does the saving.
+     * <p>Creates the parts in dependency order: Storage reports a bad save file
+     * through the Ui, and TaskList loads itself through the Storage. Loading here
+     * rather than in run() prints any save-file warning before the greeting.
      *
      * @param filePath where to keep the saved list, e.g. {@code "data/tasks.txt"}
      */
     public DavidGoggins(String filePath) {
         ui = new Ui();
+        // The path is passed in rather than fixed inside Storage, so the one decision
+        // about where tasks live is made in the class that assembles the program.
         storage = new Storage(filePath, ui);
         tasks = new TaskList(storage);
     }
