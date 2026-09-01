@@ -133,6 +133,31 @@ public class ParserTest {
         assertTrue(e.getMessage().contains("yyyy-mm-dd"), e.getMessage());
     }
 
+    @Test
+    public void parseKeyword_keywordGiven_keywordReturned() throws DavidGogginsException {
+        assertEquals("book", Parser.parseKeyword("book"));
+    }
+
+    /** The search ignores case itself, so the keyword must reach it as typed. */
+    @Test
+    public void parseKeyword_mixedCaseKeyword_capitalisationKept() throws DavidGogginsException {
+        assertEquals("Book", Parser.parseKeyword("Book"));
+    }
+
+    /** Several words are one keyword: the whole argument is searched for. */
+    @Test
+    public void parseKeyword_severalWords_wholeArgumentReturned() throws DavidGogginsException {
+        assertEquals("read book", Parser.parseKeyword("read book"));
+    }
+
+    /** The user typed a bare {@code find}, so the argument reaching the parser is empty. */
+    @Test
+    public void parseKeyword_emptyArgument_exceptionThrown() {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                Parser.parseKeyword(""));
+        assertTrue(e.getMessage().contains("what to search for"), e.getMessage());
+    }
+
     /** Marks a deadline done so the ticked-off rendering can be checked in one line. */
     private static Deadlines markedDone(Deadlines deadline) {
         deadline.markAsDone();
