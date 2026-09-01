@@ -12,7 +12,7 @@ import davidgoggins.DavidGogginsException;
  * <p>Both dates are required and the end may not come before the start, so an event
  * that exists at all covers a sensible range.
  */
-public class Event extends Task{
+public class Event extends Task {
     /** The one date format accepted, both when reading input and when printing. */
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -46,7 +46,7 @@ public class Event extends Task{
     public String toString() {
         return "[E]" + (isDone ? "[X] " : "[ ] ") + description + " (from: " + from + " to: " + to + ")";
     }
-    
+
     /** Saved as {@code E | 0 | project meeting | 2019-10-15 | 2019-10-16}. */
     @Override
     public String toSaveFormat() {
