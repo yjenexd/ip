@@ -150,7 +150,20 @@ public abstract class Task {
         return isDone ? "1" : "0";
     }
 
-    /** Marks this task as done, used by the {@code mark} command and when loading. */
+    /**
+     * Returns true if this task's description contains the given keyword.
+     *
+     * <p>Matching ignores case, so {@code find book} also finds a task the user
+     * wrote as {@code Read Book}. Asking the task itself, rather than handing out
+     * the description through a getter, keeps the field private to this class.
+     *
+     * @param keyword the text to look for
+     * @return true if the description contains the keyword
+     */
+    public boolean matches(String keyword) {
+        return description.toLowerCase().contains(keyword.toLowerCase());
+    }
+
     public void markAsDone() {
         isDone = true;
     }

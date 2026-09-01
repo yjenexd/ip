@@ -101,6 +101,24 @@ public class Parser {
     }
 
     /**
+     * Returns the keyword the user wants to search for.
+     *
+     * <p>Left exactly as typed apart from the trimming every argument gets: the
+     * search itself is what ignores case, so the keyword is not lower-cased here.
+     *
+     * @param argument everything the user typed after the word "find"
+     * @return the keyword to search for, never empty
+     * @throws DavidGogginsException if no keyword was given
+     */
+    public static String parseKeyword(String argument) throws DavidGogginsException {
+        if (argument.isEmpty()) {
+            throw new DavidGogginsException(
+                    "Tell me what to search for you log! Try: find book");
+        }
+        return argument;
+    }
+
+    /**
      * Creates a todo from its description.
      *
      * @param argument everything the user typed after the word "todo"

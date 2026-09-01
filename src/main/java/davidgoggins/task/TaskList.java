@@ -120,6 +120,20 @@ public class TaskList {
      */
     @Override
     public String toString() {
+        return format(tasks);
+    }
+
+    /**
+     * Returns the given tasks numbered from 1, one per line, in the display form
+     * {@code  1.[X] read book}.
+     *
+     * <p>Takes the tasks as a parameter rather than reading the field, so that the
+     * whole list and a set of search results are numbered by the same code.
+     *
+     * @param tasks the tasks to number, in the order they should appear
+     * @return the numbered lines, or an empty string if there are no tasks
+     */
+    public static String format(List<Task> tasks) {
         StringBuilder lines = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
             if (i > 0) {
@@ -132,14 +146,24 @@ public class TaskList {
     }
 
     /**
-     * Removes the task at the given 1-based position and saves the shortened list.
+     * Returns the tasks whose description contains the given keyword.
      *
-     * <p>Every later task shifts down one place, so a number the user read from an
-     * earlier {@code list} may point at a different task after a delete.
+     * <p>The list itself is left alone, and the tasks returned are the same objects
+     * it holds, so this is a way of looking at the list rather than a copy of it.
      *
-     * @param taskNumber the 1-based number the user typed
-     * @return the task that was removed, so the caller can print it back
+     * @param keyword the text to look for, matched without regard to case
+     * @return the matching tasks in list order, which may be empty
      */
+    public List<Task> find(String keyword) {
+        List<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.matches(keyword)) {
+                matches.add(task);
+            }
+        }
+        return matches;
+    }
+
     public Task remove(int taskNumber) {
         Task task = get(taskNumber);
         tasks.remove(taskNumber - 1);
