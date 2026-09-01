@@ -1,5 +1,7 @@
 package davidgoggins;
 
+import java.util.List;
+
 import davidgoggins.parser.Parser;
 import davidgoggins.storage.Storage;
 import davidgoggins.task.Task;
@@ -106,9 +108,11 @@ public class DavidGoggins {
         case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
         case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
         case "delete" -> deleteTask(argument);
+        case "find" -> findTasks(Parser.parseKeyword(argument)); // list tasks matching a keyword
         default -> throw new DavidGogginsException( //exception message for unknown command
                 "What are you saying! I don't know the command \"" + command + "\". "
-                        + "I understand: todo, deadline, event, list, mark, unmark, delete, bye.");
+                        + "I understand: todo, deadline, event, list, find, mark, unmark, "
+                        + "delete, bye.");
         }
     }
 
@@ -119,6 +123,24 @@ public class DavidGoggins {
             return;
         }
         ui.show(" Here are the tasks in your list:", tasks.toString());
+    }
+
+    /**
+     * Shows the tasks whose description contains the keyword.
+     *
+     * <p>The matches are numbered from 1, so the numbers shown belong to the search
+     * results and not to the full list: {@code mark 1} after a find still refers to
+     * the first task in the whole list.
+     *
+     * @param keyword the text the user asked to search for
+     */
+    private void findTasks(String keyword) {
+        List<Task> matches = tasks.find(keyword);
+        if (matches.isEmpty()) {
+            ui.show(" No tasks match \"" + keyword + "\". Nothing hiding from you!");
+            return;
+        }
+        ui.show(" Here are the matching tasks in your list:", TaskList.format(matches));
     }
 
     /**
