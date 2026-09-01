@@ -46,8 +46,6 @@ public class Event extends Task{
     public String toString() {
         return "[E]" + (isDone ? "[X] " : "[ ] ") + description + " (from: " + from + " to: " + to + ")";
     }
-    
-    /** Saved as {@code E | 0 | project meeting | 2019-10-15 | 2019-10-16}. */
     @Override
     public String toSaveFormat() {
         return "E" + SEPARATOR + doneFlag() + SEPARATOR + description + SEPARATOR + this.from + SEPARATOR + this.to;
