@@ -35,6 +35,8 @@ public class Storage {
     private final Ui ui;
 
     /**
+     * Creates a storage that reads from and writes to the given file.
+     *
      * @param filePath where to keep the saved list, e.g. {@code "data/tasks.txt"}
      * @param ui       used to report a load or save that fails
      */
@@ -94,6 +96,10 @@ public class Storage {
      * <p>An atomic move is preferred, because it means a reader can only ever see the
      * old file or the new one, never a half-written mixture. Not every file system
      * supports it, so a plain replacing move is used when it is refused.
+     *
+     * @param source the file to move, which no longer exists once this returns
+     * @param target the file to replace
+     * @throws IOException if neither kind of move succeeds
      */
     private static void replace(Path source, Path target) throws IOException {
         try {

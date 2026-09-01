@@ -58,6 +58,8 @@ public class TaskList {
 
     /**
      * Returns the number of tasks currently stored.
+     *
+     * @return the list size, which is 0 before any task is added
      */
     public int size() {
         return tasks.size();
@@ -66,8 +68,8 @@ public class TaskList {
     /**
      * Returns true if {@code taskNumber} refers to an existing task.
      *
-     *
      * @param taskNumber the 1-based number the user typed
+     * @return true if the number is between 1 and {@link #size()} inclusive
      */
     public boolean isValidTaskNumber(int taskNumber) {
         return taskNumber >= 1 && taskNumber <= tasks.size();
@@ -130,6 +132,15 @@ public class TaskList {
         return lines.toString();
     }
 
+    /**
+     * Removes the task at the given 1-based position and saves the shortened list.
+     *
+     * <p>Every later task shifts down one place, so a number the user read from an
+     * earlier {@code list} may point at a different task after a delete.
+     *
+     * @param taskNumber the 1-based number the user typed
+     * @return the task that was removed, so the caller can print it back
+     */
     public Task remove(int taskNumber) {
         Task task = get(taskNumber);
         tasks.remove(taskNumber - 1);

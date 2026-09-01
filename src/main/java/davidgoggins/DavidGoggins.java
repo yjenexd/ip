@@ -80,6 +80,11 @@ public class DavidGoggins {
         ui.showFarewell();
     }
 
+    /**
+     * Starts the chatbot with the default save file.
+     *
+     * @param args ignored; where tasks are kept is fixed by {@link #FILE_PATH}
+     */
     public static void main(String[] args) {
         new DavidGoggins(FILE_PATH).run();
     }
@@ -176,6 +181,12 @@ public class DavidGoggins {
                 " Now you have " + taskCount() + " in the list.");
     }
 
+    /**
+     * Removes a task from the list and confirms it, including the new list size.
+     *
+     * @param argument the task number the user typed, as text
+     * @throws DavidGogginsException if the number is missing, not a number, or out of range
+     */
     private void deleteTask(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(

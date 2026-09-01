@@ -25,14 +25,29 @@ public abstract class Task {
      */
     public static final String SEPARATOR_CHAR = "|";
 
+    /** The task's text, kept exactly as the user typed it. */
     protected String description;
+
+    /** Whether the user has ticked this task off. */
     protected boolean isDone;
 
+    /**
+     * Creates a task that is not done yet.
+     *
+     * @param description the task's text, which must not contain {@link #SEPARATOR_CHAR}
+     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
+    /**
+     * Returns this task as one line for display, e.g. {@code [T][X] read book}.
+     *
+     * <p>Abstract because only the subclass knows its type letter and its extra fields.
+     *
+     * @return the line to show the user, without a line separator
+     */
     public abstract String toString();
 
     /**
@@ -126,11 +141,16 @@ public abstract class Task {
         }
     }
 
-    /** Returns the saved done flag: {@code 1} when done, {@code 0} when not. */
+    /**
+     * Returns the saved done flag.
+     *
+     * @return {@code "1"} when the task is done, {@code "0"} when it is not
+     */
     protected String doneFlag() {
         return isDone ? "1" : "0";
     }
 
+    /** Marks this task as done, used by the {@code mark} command and when loading. */
     public void markAsDone() {
         isDone = true;
     }

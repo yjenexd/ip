@@ -16,6 +16,8 @@ public class DavidGogginsException extends Exception {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Creates an exception carrying the explanation to show the user.
+     *
      * @param message the explanation shown to the user, ideally saying both what
      *                went wrong and how to type the command correctly
      */

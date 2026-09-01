@@ -22,6 +22,7 @@ public class Ui {
     /** The prefix put in front of every housekeeping warning shown to the user. */
     private static final String WARNING_PREFIX = " Warning: ";
 
+    /** The ASCII-art logo printed once, above the greeting, at start-up. */
     private static final String BANNER = """
 
             +----------------------------------------------------------+
@@ -57,6 +58,8 @@ public class Ui {
      *
      * <p>This is false at the end of input, so a run whose input is piped in from a
      * file and does not end with {@code bye} exits cleanly instead of throwing.
+     *
+     * @return true if {@link #readCommand()} can be called without throwing
      */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
@@ -68,6 +71,8 @@ public class Ui {
      * <p>Trimming here rather than in the caller means every command is given the same
      * treatment, so a stray leading space can never turn a valid command into an
      * unknown one.
+     *
+     * @return the line the user typed, trimmed, possibly empty
      */
     public String readCommand() {
         return scanner.nextLine().trim();

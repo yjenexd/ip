@@ -26,6 +26,7 @@ public class Parser {
      * task keeps the capitalisation the user gave it.
      *
      * @param userInput the line the user typed, already trimmed
+     * @return the command word, or an empty string if the line was empty
      */
     public static String parseCommand(String userInput) {
         return split(userInput)[0].toLowerCase();
@@ -61,6 +62,7 @@ public class Parser {
      * field and could not be read back, so it is refused rather than mangled.
      *
      * @param argument everything the user typed after the command word
+     * @return the same argument, unchanged
      * @throws DavidGogginsException if the argument contains the separator character
      */
     public static String rejectSeparator(String argument) throws DavidGogginsException {
@@ -84,6 +86,7 @@ public class Parser {
      * @param argument    the task number the user typed, as text
      * @param commandName the command it was typed for, used in the error message so the
      *                    advice names the command the user actually used
+     * @return the number the user typed, which may not refer to an existing task
      * @throws DavidGogginsException if the argument is not a whole number
      */
     public static int parseTaskNumber(String argument, String commandName) throws DavidGogginsException {
@@ -101,6 +104,7 @@ public class Parser {
      * Creates a todo from its description.
      *
      * @param argument everything the user typed after the word "todo"
+     * @return a new todo, not yet done
      * @throws DavidGogginsException if the description is empty
      */
     public static Todo parseTodo(String argument) throws DavidGogginsException {
@@ -115,6 +119,7 @@ public class Parser {
      * Creates a deadline from {@code <description> /by <when>}.
      *
      * @param argument everything the user typed after the word "deadline"
+     * @return a new deadline, not yet done
      * @throws DavidGogginsException if the description or the due time is missing
      */
     public static Deadlines parseDeadline(String argument) throws DavidGogginsException {
@@ -143,6 +148,7 @@ public class Parser {
      * Creates an event from {@code <description> /from <start> /to <end>}.
      *
      * @param argument everything the user typed after the word "event"
+     * @return a new event, not yet done
      * @throws DavidGogginsException if the description, the start or the end is missing
      */
     public static Event parseEvent(String argument) throws DavidGogginsException {

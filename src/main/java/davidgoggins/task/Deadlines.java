@@ -8,13 +8,23 @@ import davidgoggins.DavidGogginsException;
 
 /** A task that must be finished by a given time. */
 public class Deadlines extends Task {
+    /** The one date format accepted, both when reading input and when printing. */
     private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final LocalDate by; // yyyy-mm-dd
 
     /**
-     * 
-     * @param description
-     * @param by accepts yyyy-mm-dd format, e.g. 2023-01-30
+     * When the task is due.
+     *
+     * <p>Held as a {@link LocalDate} rather than text, so a nonsense date is rejected
+     * once here instead of being stored and printed back at the user unchanged.
+     */
+    private final LocalDate by;
+
+    /**
+     * Creates a deadline that is not done yet.
+     *
+     * @param description the task's text
+     * @param by          when it is due, as {@code yyyy-mm-dd}, e.g. {@code 2023-01-30}
+     * @throws DavidGogginsException if {@code by} is not a date in that format
      */
     public Deadlines(String description, String by) throws DavidGogginsException {
         super(description);
@@ -26,6 +36,7 @@ public class Deadlines extends Task {
         }
     }
 
+    /** Shown as {@code [D][ ] return book (by: 2019-10-15)}. */
     @Override
     public String toString() {
         return "[D]" + (isDone ? "[X] " : "[ ] ") + description + " (by: " + this.by + ")";
