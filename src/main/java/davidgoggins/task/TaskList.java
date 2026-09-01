@@ -118,7 +118,6 @@ public class TaskList {
      */
     @Override
     public String toString() {
-
         StringBuilder lines = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
             if (i > 0) {

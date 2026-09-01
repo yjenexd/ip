@@ -74,21 +74,21 @@ public abstract class Task {
         String description = requireNonEmpty(fields[2], "description");
 
         Task task = switch (type) {
-        case "T" -> {
-            requireFieldCount(fields, 3, "todo");
-            yield new Todo(description);
-        }
-        case "D" -> {
-            requireFieldCount(fields, 4, "deadline");
-            yield new Deadlines(description, requireNonEmpty(fields[3], "due date"));
-        }
-        case "E" -> {
-            requireFieldCount(fields, 5, "event");
-            yield new Event(description,
-                    requireNonEmpty(fields[3], "start time"),
-                    requireNonEmpty(fields[4], "end time"));
-        }
-        default -> throw new DavidGogginsException("unknown task type \"" + type + "\"");
+            case "T" -> {
+                requireFieldCount(fields, 3, "todo");
+                yield new Todo(description);
+            }
+            case "D" -> {
+                requireFieldCount(fields, 4, "deadline");
+                yield new Deadlines(description, requireNonEmpty(fields[3], "due date"));
+            }
+            case "E" -> {
+                requireFieldCount(fields, 5, "event");
+                yield new Event(description,
+                        requireNonEmpty(fields[3], "start time"),
+                        requireNonEmpty(fields[4], "end time"));
+            }
+            default -> throw new DavidGogginsException("unknown task type \"" + type + "\"");
         };
 
         // The constructors always start a task as not done, so the saved flag is
@@ -102,10 +102,10 @@ public abstract class Task {
     /** Turns the saved {@code 1}/{@code 0} flag back into a boolean. */
     private static boolean parseDoneFlag(String field) throws DavidGogginsException {
         return switch (field) {
-        case "1" -> true;
-        case "0" -> false;
-        default -> throw new DavidGogginsException(
-                "done flag should be 0 or 1, found \"" + field + "\"");
+            case "1" -> true;
+            case "0" -> false;
+            default -> throw new DavidGogginsException(
+                    "done flag should be 0 or 1, found \"" + field + "\"");
         };
     }
 

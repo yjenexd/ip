@@ -48,11 +48,19 @@ public class DavidGoggins {
     }
 
     /**
-     * Greets the user, then reads and carries out commands until they type {@code bye}
-     * or the input runs out.
+     * Greets the user, shows any tasks restored from the save file, then reads and
+     * carries out commands until they type {@code bye} or the input runs out.
      */
     public void run() {
         ui.showWelcome();
+
+        // The tasks were already read from disk by the TaskList built in the
+        // constructor, so this only displays them rather than loading them again.
+        // Nothing is shown for an empty list: a first run on a new machine should not
+        // announce a list the user has not started yet.
+        if (tasks.size() > 0) {
+            showTasks();
+        }
 
         try {
             // hasNextCommand() is false at end of input, so redirected input that
@@ -98,17 +106,17 @@ public class DavidGoggins {
         String argument = Parser.parseArgument(userInput);
 
         switch (command) {
-        case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
-        case "list" -> showTasks();
-        case "mark" -> setDone(argument, true); // set the argument(number) task as done
-        case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
-        case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
-        case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
-        case "delete" -> deleteTask(argument);
-        default -> throw new DavidGogginsException( //exception message for unknown command
-                "What are you saying! I don't know the command \"" + command + "\". "
-                        + "I understand: todo, deadline, event, list, mark, unmark, delete, bye.");
+            case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
+            case "list" -> showTasks();
+            case "mark" -> setDone(argument, true); // set the argument (number) task as done
+            case "unmark" -> setDone(argument, false); // set the argument (number) task as not done yet
+            case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
+            case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
+            case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
+            case "delete" -> deleteTask(argument);
+            default -> throw new DavidGogginsException( // exception message for unknown command
+                    "What are you saying! I don't know the command \"" + command + "\". "
+                            + "I understand: todo, deadline, event, list, mark, unmark, delete, bye.");
         }
     }
 
@@ -169,7 +177,6 @@ public class DavidGoggins {
      * @param task the task to add
      */
     private void addTask(Task task) {
-
         tasks.add(task);
         ui.show(" Got it. I've added this task:",
                 "   " + task,
@@ -184,7 +191,9 @@ public class DavidGoggins {
 
         int taskNumber = Parser.parseTaskNumber(argument, "delete");
 
-        if (!tasks.isValidTaskNumber(taskNumber)) { // Check if the task number is valid, if not throw exception
+        // A number outside the list is the user's mistake, not a bug, so it is
+        // reported the same way as any other bad command.
+        if (!tasks.isValidTaskNumber(taskNumber)) {
             String advice = tasks.size() == 0
                     ? "your list is empty, so add a task first."
                     : "pick a number from 1 to " + tasks.size() + ".";

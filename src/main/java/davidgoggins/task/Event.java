@@ -6,7 +6,7 @@ import java.time.format.DateTimeParseException;
 
 import davidgoggins.DavidGogginsException;
 
-public class Event extends Task{
+public class Event extends Task {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final LocalDate from;
     private final LocalDate to;
@@ -26,7 +26,7 @@ public class Event extends Task{
     public String toString() {
         return "[E]" + (isDone ? "[X] " : "[ ] ") + description + " (from: " + from + " to: " + to + ")";
     }
-    
+
     @Override
     public String toSaveFormat() {
         return "E" + SEPARATOR + doneFlag() + SEPARATOR + description + SEPARATOR + this.from + SEPARATOR + this.to;

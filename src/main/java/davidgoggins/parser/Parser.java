@@ -50,7 +50,7 @@ public class Parser {
      */
     private static String[] split(String userInput) {
         // Limit of 2 stops the split after the first space, keeping the rest whole.
-        return userInput.split("\\s+", 2); //split the input into at most two parts
+        return userInput.split("\\s+", 2); // split the input into at most two parts
     }
 
     /**
@@ -154,24 +154,28 @@ public class Parser {
 
         String[] toParts = fromParts[1].split("/to", 2);
         if (toParts.length < 2) {
-            throw new DavidGogginsException( //user did not provide a /to part
-                    "An event needs a /to part after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException( // user did not provide a /to part
+                    "An event needs a /to part after /from. "
+                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
 
         String description = fromParts[0].trim();
         String from = toParts[0].trim();
         String to = toParts[1].trim();
         if (description.isEmpty()) {
-            throw new DavidGogginsException( //user did not provide a description
-                    "The description of an event cannot be empty. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException( // user did not provide a description
+                    "The description of an event cannot be empty. "
+                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
         if (from.isEmpty()) {
-            throw new DavidGogginsException(  //user did not provide a time after /from
-                    "Tell me when the event starts after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException( // user did not provide a time after /from
+                    "Tell me when the event starts after /from. "
+                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
         if (to.isEmpty()) {
-            throw new DavidGogginsException( //user did not provide a time after /to
-                    "Tell me when the event ends after /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException( // user did not provide a time after /to
+                    "Tell me when the event ends after /to. "
+                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
         }
         return new Event(description, from, to);
     }
