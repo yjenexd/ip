@@ -63,6 +63,29 @@ public abstract class Task {
     public abstract String toSaveFormat();
 
     /**
+     * Returns a save line: the type marker, the done flag, the description, and then
+     * whatever extra fields the subclass has.
+     *
+     * <p>Takes the extra fields as varargs because their number is exactly what differs
+     * between the task types: a todo has none, a deadline has one, an event has two.
+     * Each subclass passes only the fields it has, and the part of the line they all
+     * share is written once here instead of three times.
+     *
+     * @param type the one-letter marker for the task type, e.g. {@code "T"}
+     * @param extraFields the subclass's own fields, in the order they are saved
+     * @return the line to write, without a line separator
+     */
+    protected String toSaveFormat(String type, String... extraFields) {
+        StringBuilder line = new StringBuilder(type)
+                .append(SEPARATOR).append(doneFlag())
+                .append(SEPARATOR).append(description);
+        for (String field : extraFields) {
+            line.append(SEPARATOR).append(field);
+        }
+        return line.toString();
+    }
+
+    /**
      * Rebuilds a task from one line of the save file.
      *
      * <p>The reverse of {@link #toSaveFormat()}, but {@code static}: when a line is read
