@@ -187,19 +187,19 @@ public class DavidGoggins {
         String argument = Parser.parseArgument(userInput);
 
         switch (command) {
-        case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
-        case "list" -> showTasks();
-        case "mark" -> setDone(argument, true); // set the argument(number) task as done
-        case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
-        case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
-        case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
-        case "delete" -> deleteTask(argument);
-        case "find" -> findTasks(Parser.parseKeyword(argument)); // list tasks matching a keyword
-        default -> throw new DavidGogginsException( //exception message for unknown command
-                "What are you saying! I don't know the command \"" + command + "\". "
-                        + "I understand: todo, deadline, event, list, find, mark, unmark, "
-                        + "delete, bye.");
+            case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
+            case "list" -> showTasks();
+            case "mark" -> setDone(argument, true); // set the argument (number) task as done
+            case "unmark" -> setDone(argument, false); // set the argument (number) task as not done yet
+            case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
+            case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
+            case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
+            case "delete" -> deleteTask(argument);
+            case "find" -> findTasks(Parser.parseKeyword(argument)); // list tasks matching a keyword
+            default -> throw new DavidGogginsException( // exception message for unknown command
+                    "What are you saying! I don't know the command \"" + command + "\". "
+                            + "I understand: todo, deadline, event, list, find, mark, unmark, "
+                            + "delete, bye.");
         }
     }
 

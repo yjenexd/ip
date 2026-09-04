@@ -12,7 +12,7 @@ import davidgoggins.DavidGogginsException;
  * <p>Both dates are required and the end may not come before the start, so an event
  * that exists at all covers a sensible range.
  */
-public class Event extends Task{
+public class Event extends Task {
     /** The one date format accepted, both when reading input and when printing. */
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
