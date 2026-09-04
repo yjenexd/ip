@@ -45,7 +45,7 @@ public class Deadlines extends Task {
     /** Saved as {@code D | 0 | return book | Sunday}. */
     @Override
     public String toSaveFormat() {
-        return "D" + SEPARATOR + doneFlag() + SEPARATOR + description + SEPARATOR + this.by;
+        return toSaveFormat("D", by.toString());
     }
 }
 

@@ -21,6 +21,6 @@ public class Todo extends Task {
     /** Saved as {@code T | 1 | read book}. */
     @Override
     public String toSaveFormat() {
-        return "T" + SEPARATOR + doneFlag() + SEPARATOR + description;
+        return toSaveFormat("T");
     }
 }

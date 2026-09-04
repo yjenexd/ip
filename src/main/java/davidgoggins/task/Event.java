@@ -48,7 +48,7 @@ public class Event extends Task {
     }
     @Override
     public String toSaveFormat() {
-        return "E" + SEPARATOR + doneFlag() + SEPARATOR + description + SEPARATOR + this.from + SEPARATOR + this.to;
+        return toSaveFormat("E", from.toString(), to.toString());
     }
 
     /**
