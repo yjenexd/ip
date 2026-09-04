@@ -48,6 +48,7 @@ public abstract class Task {
      *
      * @return the line to show the user, without a line separator
      */
+    @Override
     public abstract String toString();
 
     /**

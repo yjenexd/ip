@@ -91,6 +91,80 @@ public class DavidGoggins {
     }
 
     /**
+     * Creates a chatbot that keeps its tasks in the default save file.
+     *
+     * <p>Used by the GUI, which has no place to ask the user for a path and wants the
+     * same file the text UI uses.
+     */
+    public DavidGoggins() {
+        this(FILE_PATH);
+    }
+
+    /**
+     * Returns the chatbot's reply to one line of input, instead of printing it.
+     *
+     * <p>The GUI needs the reply as text it can put in a dialog bubble, so the Ui is
+     * asked to collect the reply rather than print it. Every command is carried out by
+     * the same {@link #handleCommand} the text UI uses, so the two interfaces can never
+     * disagree about what a command does.
+     *
+     * @param userInput the line the user typed, which need not be trimmed
+     * @return the reply to show, already worded for the user
+     */
+    public String getResponse(String userInput) {
+        ui.startCapture();
+        String trimmedInput = userInput.trim();
+
+        if (isExitCommand(trimmedInput)) {
+            ui.show(ui.getFarewell());
+        } else {
+            try {
+                handleCommand(trimmedInput);
+            } catch (DavidGogginsException e) {
+                ui.showError(e.getMessage());
+            }
+        }
+
+        return ui.takeCaptured();
+    }
+
+    /**
+     * Returns true if the given input ends the conversation.
+     *
+     * <p>The {@code bye} command is kept for the GUI as well as the text UI: closing the
+     * app by typing a command matches the way the rest of it is driven.
+     *
+     * @param userInput the line the user typed
+     * @return true if the user asked to quit
+     */
+    public boolean isExitCommand(String userInput) {
+        return userInput.trim().equalsIgnoreCase(EXIT_COMMAND);
+    }
+
+    /**
+     * Returns the greeting the GUI shows before the first command.
+     *
+     * @return the greeting lines, without the text UI's banner
+     */
+    public String getGreeting() {
+        return ui.getGreeting();
+    }
+
+    /**
+     * Returns the tasks restored from the save file, worded for the GUI.
+     *
+     * @return the restored list, or an empty string when there is nothing to show
+     */
+    public String getRestoredTasks() {
+        if (tasks.size() == 0) {
+            return "";
+        }
+        ui.startCapture();
+        showTasks();
+        return ui.takeCaptured();
+    }
+
+    /**
      * Starts the chatbot with the default save file.
      *
      * @param args ignored; where tasks are kept is fixed by {@link #FILE_PATH}
@@ -113,19 +187,19 @@ public class DavidGoggins {
         String argument = Parser.parseArgument(userInput);
 
         switch (command) {
-        case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
-        case "list" -> showTasks();
-        case "mark" -> setDone(argument, true); // set the argument(number) task as done
-        case "unmark" -> setDone(argument, false); // set the argument(number) task as not done yet
-        case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
-        case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
-        case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
-        case "delete" -> deleteTask(argument);
-        case "find" -> findTasks(Parser.parseKeyword(argument)); // list tasks matching a keyword
-        default -> throw new DavidGogginsException( //exception message for unknown command
-                "What are you saying! I don't know the command \"" + command + "\". "
-                        + "I understand: todo, deadline, event, list, find, mark, unmark, "
-                        + "delete, bye.");
+            case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
+            case "list" -> showTasks();
+            case "mark" -> setDone(argument, true); // set the argument (number) task as done
+            case "unmark" -> setDone(argument, false); // set the argument (number) task as not done yet
+            case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
+            case "deadline" -> addTask(Parser.parseDeadline(Parser.rejectSeparator(argument)));
+            case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
+            case "delete" -> deleteTask(argument);
+            case "find" -> findTasks(Parser.parseKeyword(argument)); // list tasks matching a keyword
+            default -> throw new DavidGogginsException( // exception message for unknown command
+                    "What are you saying! I don't know the command \"" + command + "\". "
+                            + "I understand: todo, deadline, event, list, find, mark, unmark, "
+                            + "delete, bye.");
         }
     }
 

@@ -54,6 +54,15 @@ public class Ui {
     private final Scanner scanner = new Scanner(System.in);
 
     /**
+     * Collects replies instead of printing them while the GUI is asking for one.
+     *
+     * <p>Null whenever the chatbot is talking to the console. Keeping the switch here
+     * means every command method writes its reply exactly as before and neither knows
+     * nor cares which of the two interfaces is listening.
+     */
+    private StringBuilder captured;
+
+    /**
      * Returns true if there is another command waiting to be read.
      *
      * <p>This is false at the end of input, so a run whose input is piped in from a
@@ -87,12 +96,64 @@ public class Ui {
      * @param lines the lines to print, already spaced as they should appear
      */
     public void show(String... lines) {
+        if (captured != null) {
+            for (String line : lines) {
+                // The dividers and the leading spaces suit a terminal, not a chat
+                // bubble, so the collected form drops both. Splitting first matters:
+                // one argument can itself be several lines, as the task list is, and
+                // every one of them needs the same treatment.
+                for (String part : line.split("\\R", -1)) {
+                    captured.append(part.stripLeading()).append(System.lineSeparator());
+                }
+            }
+            return;
+        }
+
         System.out.println(DIVIDER);
         for (String line : lines) {
             System.out.println(line);
         }
         System.out.println(DIVIDER);
         System.out.println();
+    }
+
+    /**
+     * Starts collecting replies rather than printing them.
+     *
+     * <p>Called by the GUI before it hands a command to the chatbot, and paired with
+     * {@link #takeCaptured()} afterwards.
+     */
+    public void startCapture() {
+        captured = new StringBuilder();
+    }
+
+    /**
+     * Returns everything collected since {@link #startCapture()} and resumes printing.
+     *
+     * @return the reply as one block of text, without the surrounding dividers
+     */
+    public String takeCaptured() {
+        String reply = captured.toString().strip();
+        captured = null;
+        return reply;
+    }
+
+    /**
+     * Returns the greeting shown when the chatbot starts, without the banner.
+     *
+     * @return the two greeting lines, suitable for either interface
+     */
+    public String getGreeting() {
+        return "Hello! I'm " + NAME + "." + System.lineSeparator() + "What can I do for you?";
+    }
+
+    /**
+     * Returns the sign-off shown as the chatbot exits.
+     *
+     * @return the farewell line, suitable for either interface
+     */
+    public String getFarewell() {
+        return "Bye. Remember, stay hard!";
     }
 
     /**
@@ -117,6 +178,11 @@ public class Ui {
      * @param message the explanation to show, without the "Warning:" label
      */
     public void showWarning(String message) {
+        if (captured != null) {
+            captured.append(WARNING_PREFIX.stripLeading()).append(message)
+                    .append(System.lineSeparator());
+            return;
+        }
         System.out.println(WARNING_PREFIX + message);
     }
 
@@ -124,8 +190,7 @@ public class Ui {
     public void showWelcome() {
         System.out.println(DIVIDER);
         System.out.println(BANNER);
-        System.out.println("Hello! I'm " + NAME + ".");
-        System.out.println("What can I do for you?");
+        System.out.println(getGreeting());
         System.out.println(DIVIDER);
         System.out.println();
     }
@@ -133,7 +198,7 @@ public class Ui {
     /** Prints the sign-off shown as the chatbot exits. */
     public void showFarewell() {
         System.out.println(DIVIDER);
-        System.out.println("Bye. Remember, stay hard!");
+        System.out.println(getFarewell());
         System.out.println(DIVIDER);
     }
 
