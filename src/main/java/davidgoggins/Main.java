@@ -26,11 +26,14 @@ public class Main extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
             AnchorPane root = fxmlLoader.load();
             Scene scene = new Scene(root);
+            // Added to the scene rather than to each FXML file, so every dialog box
+            // added later picks the styling up automatically.
+            scene.getStylesheets().add(Main.class.getResource("/css/main.css").toExternalForm());
 
             stage.setScene(scene);
             stage.setTitle("David Goggins");
-            stage.setMinHeight(400.0);
-            stage.setMinWidth(400.0);
+            stage.setMinHeight(480.0);
+            stage.setMinWidth(440.0);
 
             fxmlLoader.<MainWindow>getController().setDavidGoggins(davidGoggins);
             stage.show();

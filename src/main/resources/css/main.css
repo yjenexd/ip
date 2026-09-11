@@ -1,0 +1,160 @@
+/*
+ * Look and feel of the chatbot window.
+ *
+ * The palette is built around David Goggins' public image: the black of a
+ * pre-dawn run, gunmetal grey, and one aggressive orange-red used sparingly so
+ * it reads as an accent rather than noise. Everything is kept in this one file
+ * so the FXML stays about layout and the Java stays about behaviour.
+ */
+
+/* ===== Palette ==========================================================
+ * JavaFX "looked-up colours": named once here, referenced everywhere below,
+ * so the whole window can be recoloured by editing these five lines.
+ */
+.root {
+    -fx-asphalt: #0d0d0f;      /* window background */
+    -fx-gunmetal: #1b1c20;     /* raised surfaces */
+    -fx-steel: #2c2e34;        /* borders and the user's bubble */
+    -fx-blood: #ff3b1f;        /* the single accent colour */
+    -fx-bone: #f2f2f0;         /* primary text */
+
+    -fx-background-color: -fx-asphalt;
+    -fx-font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+}
+
+/* ===== Conversation area ============================================== */
+
+/* The ScrollPane paints its own background by default, which would show as a
+ * pale rectangle over the dark window, so both it and its viewport are cleared. */
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* A thin, unobtrusive scrollbar; the default one is bulky and light grey. */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-steel;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -fx-blood;
+}
+
+/* The increment/decrement arrows add clutter at this size, so they are hidden. */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* ===== Message bubbles ================================================= */
+
+/* Shared by both speakers: rounded box, generous padding, readable line height. */
+.dialog-label {
+    -fx-background-radius: 14;
+    -fx-padding: 10 14 10 14;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2;
+    -fx-wrap-text: true;
+}
+
+/* The user speaks in plain steel: quieter than the bot, so the eye lands on
+ * the replies first. */
+.user-label {
+    -fx-background-color: -fx-steel;
+    -fx-text-fill: -fx-bone;
+    -fx-border-color: #3c3f47;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+}
+
+/* Goggins shouts: near-black bubble outlined in the accent colour, with the
+ * corner nearest his avatar squared off so the bubble "points" at him. */
+.reply-label {
+    -fx-background-color: -fx-gunmetal;
+    -fx-text-fill: -fx-bone;
+    -fx-border-color: -fx-blood;
+    -fx-border-width: 1;
+    -fx-background-radius: 14 14 14 2;
+    -fx-border-radius: 14 14 14 2;
+    -fx-effect: dropshadow(gaussian, rgba(255, 59, 31, 0.25), 12, 0, 0, 0);
+}
+
+/* Frames each avatar like a military ID photo: hard edges, thin accent border. */
+.avatar {
+    -fx-background-color: -fx-gunmetal;
+    -fx-border-color: -fx-blood;
+    -fx-border-width: 2;
+    -fx-padding: 2;
+}
+
+/* ===== Input row ======================================================= */
+
+/* Separates the controls from the conversation without drawing a heavy line. */
+.input-bar {
+    -fx-background-color: -fx-gunmetal;
+    -fx-border-color: -fx-steel transparent transparent transparent;
+    -fx-border-width: 1;
+    -fx-padding: 8;
+    -fx-spacing: 8;
+}
+
+.text-field {
+    -fx-background-color: -fx-asphalt;
+    -fx-background-radius: 6;
+    -fx-border-color: -fx-steel;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: -fx-bone;
+    -fx-prompt-text-fill: #6b6e78;
+    -fx-highlight-fill: -fx-blood;
+    -fx-font-size: 13px;
+    -fx-padding: 0 12 0 12;
+}
+
+.text-field:focused {
+    -fx-border-color: -fx-blood;
+}
+
+/* The call to action, styled like a stencilled sign: condensed, upper case,
+ * and the only filled block of accent colour in the window. */
+.send-button {
+    -fx-background-color: -fx-blood;
+    -fx-background-radius: 6;
+    -fx-text-fill: white;
+    -fx-font-family: "Impact", "Haettenschweiler", "Arial Narrow", sans-serif;
+    -fx-font-size: 15px;
+    -fx-letter-spacing: 1;
+    -fx-cursor: hand;
+}
+
+.send-button:hover {
+    -fx-background-color: derive(-fx-blood, 15%);
+}
+
+.send-button:pressed {
+    -fx-background-color: derive(-fx-blood, -20%);
+}
+
+/* Disabled after "bye", while the farewell is still on screen. */
+.send-button:disabled,
+.text-field:disabled {
+    -fx-opacity: 0.4;
+}

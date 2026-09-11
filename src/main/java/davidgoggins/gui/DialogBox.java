@@ -75,7 +75,9 @@ public class DialogBox extends HBox {
      * @return the dialog box to add to the conversation
      */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image);
+        DialogBox box = new DialogBox(text, image);
+        box.dialog.getStyleClass().add("user-label");
+        return box;
     }
 
     /**
