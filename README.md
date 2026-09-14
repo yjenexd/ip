@@ -1,6 +1,6 @@
 # DavidGoggins project template
 
-This is a project template for a greenfield Java project. It's named after the chatbot's persona, _David Goggins_. Given below are instructions on how to use it.
+This is a project template for a greenfield Java project. It's named after the chatbot's persona, _David Goggins_. Below are instructions on how to use it.
 
 ## Setting up in Intellij
 
