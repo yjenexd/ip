@@ -15,14 +15,14 @@ import davidgoggins.task.Todo;
  */
 public class Parser {
 
-    /** A correct todo command, suggested when a todo cannot be read. */
-    private static final String TODO_EXAMPLE = "todo read book";
+    /** A correct todo command, suggested when a todo cannot be read, and shown by help. */
+    public static final String TODO_EXAMPLE = "todo read book";
 
-    /** A correct deadline command, suggested when a deadline cannot be read. */
-    private static final String DEADLINE_EXAMPLE = "deadline return book /by 2026-09-10";
+    /** A correct deadline command, suggested when a deadline cannot be read, and shown by help. */
+    public static final String DEADLINE_EXAMPLE = "deadline return book /by 2026-09-10";
 
-    /** A correct event command, suggested when an event cannot be read. */
-    private static final String EVENT_EXAMPLE = "event project meeting /from 2026-09-10 /to 2026-09-11";
+    /** A correct event command, suggested when an event cannot be read, and shown by help. */
+    public static final String EVENT_EXAMPLE = "event project meeting /from 2026-09-10 /to 2026-09-11";
 
     // Every method below is static because parsing needs no state: the same input
     // always gives the same result, so there is nothing for an instance to remember.
