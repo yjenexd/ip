@@ -39,7 +39,7 @@ public class Deadlines extends Task {
     /** Shown as {@code [D][ ] return book (by: 2019-10-15)}. */
     @Override
     public String toString() {
-        return "[D]" + (isDone ? "[X] " : "[ ] ") + description + " (by: " + this.by + ")";
+        return "[D]" + getStatusIcon() + description + " (by: " + this.by + ")";
     }
 
     /** Saved as {@code D | 0 | return book | Sunday}. */

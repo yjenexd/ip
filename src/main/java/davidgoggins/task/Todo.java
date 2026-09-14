@@ -15,7 +15,7 @@ public class Todo extends Task {
     /** Shown as {@code [T][X] read book}, where {@code X} means done. */
     @Override
     public String toString() {
-        return "[T]" + (isDone ? "[X] " : "[ ] ") + description;
+        return "[T]" + getStatusIcon() + description;
     }
 
     /** Saved as {@code T | 1 | read book}. */

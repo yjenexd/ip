@@ -166,6 +166,15 @@ public abstract class Task {
     }
 
     /**
+     * Returns the done marker shown in the task list.
+     *
+     * @return {@code "[X] "} when the task is done, {@code "[ ] "} when it is not
+     */
+    protected String getStatusIcon() {
+        return isDone ? "[X] " : "[ ] ";
+    }
+
+    /**
      * Returns the saved done flag.
      *
      * @return {@code "1"} when the task is done, {@code "0"} when it is not

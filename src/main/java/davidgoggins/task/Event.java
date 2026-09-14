@@ -44,7 +44,7 @@ public class Event extends Task {
     /** Shown as {@code [E][ ] project meeting (from: 2019-10-15 to: 2019-10-16)}. */
     @Override
     public String toString() {
-        return "[E]" + (isDone ? "[X] " : "[ ] ") + description + " (from: " + from + " to: " + to + ")";
+        return "[E]" + getStatusIcon() + description + " (from: " + from + " to: " + to + ")";
     }
     @Override
     public String toSaveFormat() {
