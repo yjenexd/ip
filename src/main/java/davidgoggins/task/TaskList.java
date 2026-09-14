@@ -2,6 +2,8 @@ package davidgoggins.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import davidgoggins.storage.Storage;
 
@@ -134,15 +136,11 @@ public class TaskList {
      * @return the numbered lines, or an empty string if there are no tasks
      */
     public static String format(List<Task> tasks) {
-        StringBuilder lines = new StringBuilder();
-        for (int i = 0; i < tasks.size(); i++) {
-            if (i > 0) {
-                lines.append(System.lineSeparator());
-            }
-            // i + 1 converts back to the 1-based numbering the user sees.
-            lines.append(" ").append(i + 1).append(".").append(tasks.get(i));
-        }
-        return lines.toString();
+        // A stream of positions rather than of tasks, since each line needs its number;
+        // i + 1 converts back to the 1-based numbering the user sees.
+        return IntStream.range(0, tasks.size())
+                .mapToObj(i -> " " + (i + 1) + "." + tasks.get(i))
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**
@@ -155,13 +153,9 @@ public class TaskList {
      * @return the matching tasks in list order, which may be empty
      */
     public List<Task> find(String keyword) {
-        List<Task> matches = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.matches(keyword)) {
-                matches.add(task);
-            }
-        }
-        return matches;
+        return tasks.stream()
+                .filter(task -> task.matches(keyword))
+                .collect(Collectors.toList());
     }
 
     public Task remove(int taskNumber) {

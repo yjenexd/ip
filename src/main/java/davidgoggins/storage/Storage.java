@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import davidgoggins.DavidGogginsException;
 import davidgoggins.task.Task;
@@ -57,10 +58,10 @@ public class Storage {
      * @param tasks the tasks to write, in the order they should be stored
      */
     public void save(List<Task> tasks) {
-        StringBuilder lines = new StringBuilder();
-        for (Task task : tasks) {
-            lines.append(task.toSaveFormat()).append(System.lineSeparator());
-        }
+        // Every line, the last included, ends with a line separator, as a text file should.
+        String lines = tasks.stream()
+                .map(task -> task.toSaveFormat() + System.lineSeparator())
+                .collect(Collectors.joining());
 
         Path temporary = null;
         try {
@@ -77,7 +78,7 @@ public class Storage {
             // would leave the user with no tasks at all rather than the previous ones.
             // The temporary file goes in the same folder so the move stays on one disk.
             temporary = Files.createTempFile(parent, "tasks", ".tmp");
-            Files.writeString(temporary, lines.toString());
+            Files.writeString(temporary, lines);
             replace(temporary, file);
             temporary = null; // the move consumed it, so there is nothing left to clean up
         } catch (IOException e) {
