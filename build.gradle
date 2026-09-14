@@ -62,6 +62,7 @@ tasks.register('runText', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'davidgoggins.DavidGoggins'
     standardInput = System.in
+    enableAssertions = true
 }
 
 jar {
@@ -77,4 +78,6 @@ shadowJar {
 
 run {
     standardInput = System.in
+    // Java ignores assert statements unless the JVM is started with -ea; this turns them on.
+    enableAssertions = true
 }

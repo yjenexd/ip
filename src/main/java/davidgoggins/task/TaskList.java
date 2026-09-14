@@ -52,6 +52,7 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        assert task != null : "a null task would crash later, when it is listed or saved";
         tasks.add(task);
         save();
     }
@@ -82,6 +83,9 @@ public class TaskList {
      * @return the task at that position
      */
     public Task get(int taskNumber) {
+        // Callers check isValidTaskNumber() and report a bad number to the user first,
+        // so an out-of-range number reaching this point is a bug, not a user mistake.
+        assert isValidTaskNumber(taskNumber) : "task number out of range: " + taskNumber;
         return tasks.get(taskNumber - 1); // -1 converts the user's numbering to ArrayList's
     }
 
@@ -166,7 +170,9 @@ public class TaskList {
 
     public Task remove(int taskNumber) {
         Task task = get(taskNumber);
+        int sizeBefore = tasks.size();
         tasks.remove(taskNumber - 1);
+        assert tasks.size() == sizeBefore - 1 : "removing a task should shrink the list by one";
         save();
         return task;
     }
