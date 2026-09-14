@@ -97,15 +97,7 @@ public class Ui {
      */
     public void show(String... lines) {
         if (captured != null) {
-            for (String line : lines) {
-                // The dividers and the leading spaces suit a terminal, not a chat
-                // bubble, so the collected form drops both. Splitting first matters:
-                // one argument can itself be several lines, as the task list is, and
-                // every one of them needs the same treatment.
-                for (String part : line.split("\\R", -1)) {
-                    captured.append(part.stripLeading()).append(System.lineSeparator());
-                }
-            }
+            capture(lines);
             return;
         }
 
@@ -115,6 +107,23 @@ public class Ui {
         }
         System.out.println(DIVIDER);
         System.out.println();
+    }
+
+    /**
+     * Adds one reply block to the captured text, in the form the GUI shows.
+     *
+     * <p>The dividers and the leading spaces suit a terminal, not a chat bubble, so
+     * both are dropped. Each argument is split first, since one argument can itself be
+     * several lines, as the task list is, and every one needs the same treatment.
+     *
+     * @param lines the lines of the reply, as passed to {@link #show}
+     */
+    private void capture(String... lines) {
+        for (String line : lines) {
+            for (String part : line.split("\\R", -1)) {
+                captured.append(part.stripLeading()).append(System.lineSeparator());
+            }
+        }
     }
 
     /**
