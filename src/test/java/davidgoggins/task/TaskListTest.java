@@ -29,7 +29,7 @@ public class TaskListTest {
     /** The three tasks the searches below are run against. */
     private static TaskList sampleList() throws DavidGogginsException {
         return listOf(new Todo("read book"),
-                new Deadlines("return book", "2026-06-06"),
+                new Deadline("return book", "2026-06-06"),
                 new Todo("run 10 miles"));
     }
 

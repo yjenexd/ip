@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import davidgoggins.DavidGogginsException;
 
 /** A task that must be finished by a given time. */
-public class Deadlines extends Task {
+public class Deadline extends Task {
     /** A correct deadline command, suggested when the date cannot be read. */
     private static final String EXAMPLE = "deadline return book /by 2019-10-15";
 
@@ -24,7 +24,7 @@ public class Deadlines extends Task {
      * @param by          when it is due, as {@code yyyy-mm-dd}, e.g. {@code 2023-01-30}
      * @throws DavidGogginsException if {@code by} is not a date in that format
      */
-    public Deadlines(String description, String by) throws DavidGogginsException {
+    public Deadline(String description, String by) throws DavidGogginsException {
         super(description);
         this.by = parseDate(by, EXAMPLE);
     }

@@ -1,7 +1,7 @@
 package davidgoggins.parser;
 
 import davidgoggins.DavidGogginsException;
-import davidgoggins.task.Deadlines;
+import davidgoggins.task.Deadline;
 import davidgoggins.task.Event;
 import davidgoggins.task.Task;
 import davidgoggins.task.Todo;
@@ -140,7 +140,7 @@ public class Parser {
      * @return a new deadline, not yet done
      * @throws DavidGogginsException if the description or the due time is missing
      */
-    public static Deadlines parseDeadline(String argument) throws DavidGogginsException {
+    public static Deadline parseDeadline(String argument) throws DavidGogginsException {
         // Splitting on the bare keyword (rather than " /by ") lets us spot a
         // "/by" with nothing after it instead of silently failing to split.
         String[] parts = argument.split("/by", 2);
@@ -159,7 +159,7 @@ public class Parser {
             throw new DavidGogginsException(
                     "Tell me when it is due after /by you log! Try: deadline return book /by 2026-09-10");
         }
-        return new Deadlines(description, by);
+        return new Deadline(description, by);
     }
 
     /**

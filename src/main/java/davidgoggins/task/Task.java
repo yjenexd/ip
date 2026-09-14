@@ -126,7 +126,7 @@ public abstract class Task {
             }
             case "D" -> {
                 requireFieldCount(fields, 4, "deadline");
-                yield new Deadlines(description, requireNonEmpty(fields[3], "due date"));
+                yield new Deadline(description, requireNonEmpty(fields[3], "due date"));
             }
             case "E" -> {
                 requireFieldCount(fields, 5, "event");

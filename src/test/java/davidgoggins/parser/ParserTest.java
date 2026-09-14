@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import davidgoggins.DavidGogginsException;
-import davidgoggins.task.Deadlines;
+import davidgoggins.task.Deadline;
 
 /**
  * Tests {@link Parser#parseDeadline(String)}.
@@ -15,34 +15,34 @@ import davidgoggins.task.Deadlines;
  * <p>That method is a good fit for unit testing: it is static, it reads nothing from
  * disk and prints nothing, so a test only has to hand it a string and look at what
  * comes back. The result is checked through {@code toString()} and
- * {@code toSaveFormat()}, since {@link Deadlines} exposes no getters.
+ * {@code toSaveFormat()}, since {@link Deadline} exposes no getters.
  */
 public class ParserTest {
 
     @Test
     public void parseDeadline_descriptionAndDate_deadlineCreated() throws DavidGogginsException {
-        Deadlines deadline = Parser.parseDeadline("return book /by 2026-09-10");
+        Deadline deadline = Parser.parseDeadline("return book /by 2026-09-10");
         assertEquals("[D][ ] return book (by: 2026-09-10)", deadline.toString());
     }
 
     /** A new deadline should never start out ticked off, whatever the input. */
     @Test
     public void parseDeadline_descriptionAndDate_notDone() throws DavidGogginsException {
-        Deadlines deadline = Parser.parseDeadline("return book /by 2026-09-10");
+        Deadline deadline = Parser.parseDeadline("return book /by 2026-09-10");
         assertEquals("D | 0 | return book | 2026-09-10", deadline.toSaveFormat());
     }
 
     /** The parser trims, so stray spaces around either part must not survive. */
     @Test
     public void parseDeadline_extraSpacesAroundParts_partsTrimmed() throws DavidGogginsException {
-        Deadlines deadline = Parser.parseDeadline("   return book    /by    2026-09-10   ");
+        Deadline deadline = Parser.parseDeadline("   return book    /by    2026-09-10   ");
         assertEquals("[D][ ] return book (by: 2026-09-10)", deadline.toString());
     }
 
     /** Only the command word is lower-cased, so a description keeps the user's capitals. */
     @Test
     public void parseDeadline_mixedCaseDescription_capitalisationKept() throws DavidGogginsException {
-        Deadlines deadline = Parser.parseDeadline("Return CS2103T Book /by 2026-09-10");
+        Deadline deadline = Parser.parseDeadline("Return CS2103T Book /by 2026-09-10");
         assertEquals("[D][X] Return CS2103T Book (by: 2026-09-10)", markedDone(deadline).toString());
     }
 
@@ -53,7 +53,7 @@ public class ParserTest {
      */
     @Test
     public void parseDeadline_noSpacesAroundKeyword_stillSplit() throws DavidGogginsException {
-        Deadlines deadline = Parser.parseDeadline("return book/by2026-09-10");
+        Deadline deadline = Parser.parseDeadline("return book/by2026-09-10");
         assertEquals("[D][ ] return book (by: 2026-09-10)", deadline.toString());
     }
 
@@ -159,7 +159,7 @@ public class ParserTest {
     }
 
     /** Marks a deadline done so the ticked-off rendering can be checked in one line. */
-    private static Deadlines markedDone(Deadlines deadline) {
+    private static Deadline markedDone(Deadline deadline) {
         deadline.markAsDone();
         return deadline;
     }
