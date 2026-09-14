@@ -50,6 +50,9 @@ public class Parser {
      * as {@code read book} stays intact as a single argument.
      */
     private static String[] split(String userInput) {
+        // A leading space would make the command word "" and the real command the
+        // argument, so both callers promise to trim the input first.
+        assert userInput.equals(userInput.trim()) : "input should be trimmed before parsing";
         // Limit of 2 stops the split after the first space, keeping the rest whole.
         return userInput.split("\\s+", 2); // split the input into at most two parts
     }

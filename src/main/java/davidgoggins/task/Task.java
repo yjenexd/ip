@@ -37,6 +37,10 @@ public abstract class Task {
      * @param description the task's text, which must not contain {@link #SEPARATOR_CHAR}
      */
     public Task(String description) {
+        // Both the parser and fromSaveFormat() reject such descriptions before a task is
+        // built, so either one arriving here means a check was skipped somewhere.
+        assert description != null && !description.isBlank() : "description should not be blank";
+        assert !description.contains(SEPARATOR_CHAR) : "description would corrupt the save file";
         this.description = description;
         this.isDone = false;
     }

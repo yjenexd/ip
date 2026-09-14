@@ -46,8 +46,12 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + (isDone ? "[X] " : "[ ] ") + description + " (from: " + from + " to: " + to + ")";
     }
+
     @Override
     public String toSaveFormat() {
+        // The constructor refuses a backwards range and the fields are final, so this
+        // still holds; saving a backwards event would make the file unloadable.
+        assert !to.isBefore(from) : "event ends before it starts";
         return toSaveFormat("E", from.toString(), to.toString());
     }
 

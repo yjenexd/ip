@@ -81,6 +81,7 @@ public class MainWindow extends AnchorPane {
             return;
         }
 
+        assert davidGoggins != null : "setDavidGoggins() must be called before the user can type";
         String response = davidGoggins.getResponse(input);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
