@@ -35,7 +35,7 @@ public class Deadline extends Task {
         return "[D]" + getStatusIcon() + description + " (by: " + this.by + ")";
     }
 
-    /** Saved as {@code D | 0 | return book | Sunday}. */
+    /** Saved as {@code D | 0 | return book | 2019-10-15}. */
     @Override
     public String toSaveFormat() {
         return toSaveFormat("D", by.toString());

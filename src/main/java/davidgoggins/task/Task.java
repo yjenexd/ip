@@ -224,6 +224,7 @@ public abstract class Task {
         return description.toLowerCase().contains(keyword.toLowerCase());
     }
 
+    /** Marks this task as done, used by the {@code mark} command. */
     public void markAsDone() {
         isDone = true;
     }

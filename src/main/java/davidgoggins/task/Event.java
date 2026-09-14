@@ -44,6 +44,8 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + getStatusIcon() + description + " (from: " + from + " to: " + to + ")";
     }
+
+    /** Saved as {@code E | 0 | project meeting | 2019-10-15 | 2019-10-16}. */
     @Override
     public String toSaveFormat() {
         return toSaveFormat("E", from.toString(), to.toString());
