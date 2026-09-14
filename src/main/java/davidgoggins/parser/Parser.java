@@ -1,7 +1,7 @@
 package davidgoggins.parser;
 
 import davidgoggins.DavidGogginsException;
-import davidgoggins.task.Deadlines;
+import davidgoggins.task.Deadline;
 import davidgoggins.task.Event;
 import davidgoggins.task.Task;
 import davidgoggins.task.Todo;
@@ -14,6 +14,15 @@ import davidgoggins.task.Todo;
  * prints anything, so every rule about what counts as valid input is in this one file.
  */
 public class Parser {
+
+    /** A correct todo command, suggested when a todo cannot be read. */
+    private static final String TODO_EXAMPLE = "todo read book";
+
+    /** A correct deadline command, suggested when a deadline cannot be read. */
+    private static final String DEADLINE_EXAMPLE = "deadline return book /by 2026-09-10";
+
+    /** A correct event command, suggested when an event cannot be read. */
+    private static final String EVENT_EXAMPLE = "event project meeting /from 2026-09-10 /to 2026-09-11";
 
     // Every method below is static because parsing needs no state: the same input
     // always gives the same result, so there is nothing for an instance to remember.
@@ -54,7 +63,7 @@ public class Parser {
         // argument, so both callers promise to trim the input first.
         assert userInput.equals(userInput.trim()) : "input should be trimmed before parsing";
         // Limit of 2 stops the split after the first space, keeping the rest whole.
-        return userInput.split("\\s+", 2); // split the input into at most two parts
+        return userInput.split("\\s+", 2);
     }
 
     /**
@@ -131,7 +140,7 @@ public class Parser {
     public static Todo parseTodo(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "The description of a todo cannot be empty you log! Try: todo read book");
+                    "The description of a todo cannot be empty you log! Try: " + TODO_EXAMPLE);
         }
         return new Todo(argument);
     }
@@ -143,26 +152,26 @@ public class Parser {
      * @return a new deadline, not yet done
      * @throws DavidGogginsException if the description or the due time is missing
      */
-    public static Deadlines parseDeadline(String argument) throws DavidGogginsException {
+    public static Deadline parseDeadline(String argument) throws DavidGogginsException {
         // Splitting on the bare keyword (rather than " /by ") lets us spot a
         // "/by" with nothing after it instead of silently failing to split.
         String[] parts = argument.split("/by", 2);
         if (parts.length < 2) {
             throw new DavidGogginsException(
-                    "A deadline needs a /by part you log! Try: deadline return book /by 2026-09-10");
+                    "A deadline needs a /by part you log! Try: " + DEADLINE_EXAMPLE);
         }
 
         String description = parts[0].trim();
         String by = parts[1].trim();
         if (description.isEmpty()) {
             throw new DavidGogginsException(
-                    "The description of a deadline cannot be empty you log! Try: deadline return book /by 2026-09-10");
+                    "The description of a deadline cannot be empty you log! Try: " + DEADLINE_EXAMPLE);
         }
         if (by.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me when it is due after /by you log! Try: deadline return book /by 2026-09-10");
+                    "Tell me when it is due after /by you log! Try: " + DEADLINE_EXAMPLE);
         }
-        return new Deadlines(description, by);
+        return new Deadline(description, by);
     }
 
     /**
@@ -174,35 +183,31 @@ public class Parser {
      */
     public static Event parseEvent(String argument) throws DavidGogginsException {
         String[] fromParts = argument.split("/from", 2);
-        if (fromParts.length < 2) { // user did not provide a /from part
+        if (fromParts.length < 2) {
             throw new DavidGogginsException(
-                    "An event needs a /from part. Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+                    "An event needs a /from part. Try: " + EVENT_EXAMPLE);
         }
 
         String[] toParts = fromParts[1].split("/to", 2);
         if (toParts.length < 2) {
-            throw new DavidGogginsException( // user did not provide a /to part
-                    "An event needs a /to part after /from. "
-                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException(
+                    "An event needs a /to part after /from. Try: " + EVENT_EXAMPLE);
         }
 
         String description = fromParts[0].trim();
         String from = toParts[0].trim();
         String to = toParts[1].trim();
         if (description.isEmpty()) {
-            throw new DavidGogginsException( // user did not provide a description
-                    "The description of an event cannot be empty. "
-                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException(
+                    "The description of an event cannot be empty. Try: " + EVENT_EXAMPLE);
         }
         if (from.isEmpty()) {
-            throw new DavidGogginsException( // user did not provide a time after /from
-                    "Tell me when the event starts after /from. "
-                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException(
+                    "Tell me when the event starts after /from. Try: " + EVENT_EXAMPLE);
         }
         if (to.isEmpty()) {
-            throw new DavidGogginsException( // user did not provide a time after /to
-                    "Tell me when the event ends after /to. "
-                            + "Try: event project meeting /from 2026-09-10 /to 2026-09-11");
+            throw new DavidGogginsException(
+                    "Tell me when the event ends after /to. Try: " + EVENT_EXAMPLE);
         }
         return new Event(description, from, to);
     }

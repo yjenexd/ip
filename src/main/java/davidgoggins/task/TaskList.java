@@ -168,6 +168,12 @@ public class TaskList {
         return matches;
     }
 
+    /**
+     * Removes the given task; the tasks after it move up one number.
+     *
+     * @param taskNumber the 1-based number the user typed
+     * @return the task that was removed, so the caller can print it back
+     */
     public Task remove(int taskNumber) {
         Task task = get(taskNumber);
         int sizeBefore = tasks.size();
