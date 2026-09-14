@@ -259,7 +259,7 @@ public class DavidGoggins {
      * <p>Both the add and the delete confirmations need this, so it lives in one
      * method rather than being written out (and mis-worded) in each of them.
      */
-    private String taskCount() {
+    private String formatTaskCount() {
         int count = tasks.size();
         return count + (count == 1 ? " task" : " tasks");
     }
@@ -273,7 +273,7 @@ public class DavidGoggins {
         tasks.add(task);
         ui.show(" Got it. I've added this task:",
                 "   " + task,
-                " Now you have " + taskCount() + " in the list.");
+                " Now you have " + formatTaskCount() + " in the list.");
     }
 
     /**
@@ -292,7 +292,7 @@ public class DavidGoggins {
         Task removedTask = tasks.remove(taskNumber);
         ui.show(" Noted. I've removed this task:",
                 "   " + removedTask,
-                " Now you have " + taskCount() + " in the list.");
+                " Now you have " + formatTaskCount() + " in the list.");
     }
 
     /**
