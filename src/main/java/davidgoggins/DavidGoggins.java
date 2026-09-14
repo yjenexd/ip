@@ -270,7 +270,10 @@ public class DavidGoggins {
      * @param task the task to add
      */
     private void addTask(Task task) {
+        int sizeBefore = tasks.size();
         tasks.add(task);
+        // The confirmation below quotes the new size, so it must reflect this one addition.
+        assert tasks.size() == sizeBefore + 1 : "adding a task should grow the list by one";
         ui.show(" Got it. I've added this task:",
                 "   " + task,
                 " Now you have " + formatTaskCount() + " in the list.");

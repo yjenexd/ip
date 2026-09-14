@@ -142,6 +142,7 @@ public class Ui {
      * @return the reply as one block of text, without the surrounding dividers
      */
     public String takeCaptured() {
+        assert captured != null : "takeCaptured() called without a matching startCapture()";
         String reply = captured.toString().strip();
         captured = null;
         return reply;
