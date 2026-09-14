@@ -17,6 +17,15 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
+    /** The text shown in the window's title bar. */
+    private static final String WINDOW_TITLE = "David Goggins";
+
+    /** The smallest height, in pixels, the user can shrink the window to. */
+    private static final double MIN_WINDOW_HEIGHT = 480.0;
+
+    /** The smallest width, in pixels, the user can shrink the window to. */
+    private static final double MIN_WINDOW_WIDTH = 440.0;
+
     /** The chatbot the window sends the user's commands to. */
     private final DavidGoggins davidGoggins = new DavidGoggins();
 
@@ -31,9 +40,9 @@ public class Main extends Application {
             scene.getStylesheets().add(Main.class.getResource("/css/main.css").toExternalForm());
 
             stage.setScene(scene);
-            stage.setTitle("David Goggins");
-            stage.setMinHeight(480.0);
-            stage.setMinWidth(440.0);
+            stage.setTitle(WINDOW_TITLE);
+            stage.setMinHeight(MIN_WINDOW_HEIGHT);
+            stage.setMinWidth(MIN_WINDOW_WIDTH);
 
             fxmlLoader.<MainWindow>getController().setDavidGoggins(davidGoggins);
             stage.show();
