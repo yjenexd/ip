@@ -1,5 +1,6 @@
 package davidgoggins;
 
+import java.util.Arrays;
 import java.util.List;
 
 import davidgoggins.parser.Parser;
@@ -22,6 +23,33 @@ public class DavidGoggins {
 
     /** The command that ends the conversation. */
     private static final String EXIT_COMMAND = "bye";
+
+    /** The command that shows how to use every other command. */
+    private static final String HELP_COMMAND = "help";
+
+    /**
+     * The help page, one entry per line, without the leading space the text UI adds.
+     *
+     * <p>Kept beside {@link #handleCommand} so that adding a command and documenting it
+     * happen in the same file. The examples come from {@link Parser}, so the help page
+     * and the error messages always suggest the same syntax.
+     */
+    private static final String[] HELP_LINES = {
+        "Here are the commands I understand:",
+        "todo <description>",
+        "Example: " + Parser.TODO_EXAMPLE,
+        "deadline <description> /by <yyyy-mm-dd>",
+        "Example: " + Parser.DEADLINE_EXAMPLE,
+        "event <description> /from <yyyy-mm-dd> /to <yyyy-mm-dd>",
+        "Example: " + Parser.EVENT_EXAMPLE,
+        "list",
+        "find <keyword>",
+        "mark <task number>",
+        "unmark <task number>",
+        "delete <task number>",
+        "help",
+        "bye",
+    };
 
     /** Handles all reading from and writing to the console. */
     private final Ui ui;
@@ -117,6 +145,9 @@ public class DavidGoggins {
 
         if (isExitCommand(trimmedInput)) {
             ui.show(ui.getFarewell());
+        } else if (isHelpCommand(trimmedInput)) {
+            // The GUI shows the page in its own window, so the chat only confirms it.
+            ui.show("Opened the help window.");
         } else {
             try {
                 handleCommand(trimmedInput);
@@ -139,6 +170,28 @@ public class DavidGoggins {
      */
     public boolean isExitCommand(String userInput) {
         return userInput.trim().equalsIgnoreCase(EXIT_COMMAND);
+    }
+
+    /**
+     * Returns true if the given input asks for the help page.
+     *
+     * <p>Only a bare {@code help} counts, so {@code help deadline} is left to
+     * {@link #getResponse} to reject instead of opening the help window.
+     *
+     * @param userInput the line the user typed
+     * @return true if the user asked for help with nothing after it
+     */
+    public boolean isHelpCommand(String userInput) {
+        return userInput.trim().equalsIgnoreCase(HELP_COMMAND);
+    }
+
+    /**
+     * Returns the help page for the GUI's help window.
+     *
+     * @return the help lines, one per line, without the text UI's indentation
+     */
+    public String getHelp() {
+        return String.join(System.lineSeparator(), HELP_LINES);
     }
 
     /**
@@ -196,11 +249,28 @@ public class DavidGoggins {
             case "event" -> addTask(Parser.parseEvent(Parser.rejectSeparator(argument)));
             case "delete" -> deleteTask(argument);
             case "find" -> findTasks(Parser.parseKeyword(argument));
+            case HELP_COMMAND -> showHelp(argument);
             default -> throw new DavidGogginsException(
                     "What are you saying! I don't know the command \"" + command + "\". "
-                            + "I understand: todo, deadline, event, list, find, mark, unmark, "
-                            + "delete, bye.");
+                            + "Type help to see the commands I understand.");
         }
+    }
+
+    /**
+     * Shows the help page.
+     *
+     * @param argument everything typed after the word "help", which must be empty
+     * @throws DavidGogginsException if anything was typed after "help"
+     */
+    private void showHelp(String argument) throws DavidGogginsException {
+        if (!argument.isEmpty()) {
+            throw new DavidGogginsException("The help command takes no details. Try: help");
+        }
+        // The leading space matches every other reply in the text UI.
+        String[] indentedLines = Arrays.stream(HELP_LINES)
+                .map(line -> " " + line)
+                .toArray(String[]::new);
+        ui.show(indentedLines);
     }
 
     /** Prints every task, numbered from 1. */

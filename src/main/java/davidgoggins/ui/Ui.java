@@ -151,10 +151,15 @@ public class Ui {
     /**
      * Returns the greeting shown when the chatbot starts, without the banner.
      *
-     * @return the two greeting lines, suitable for either interface
+     * <p>The last line points new users to {@code help}, so they can find the commands
+     * without having to guess one first.
+     *
+     * @return the greeting lines, suitable for either interface
      */
     public String getGreeting() {
-        return "Hello! I'm " + NAME + "." + System.lineSeparator() + "What can I do for you?";
+        return "Hello! I'm " + NAME + "." + System.lineSeparator()
+                + "What can I do for you?" + System.lineSeparator()
+                + "Type help to see the commands I understand.";
     }
 
     /**

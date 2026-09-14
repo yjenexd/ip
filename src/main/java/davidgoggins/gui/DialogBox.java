@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 
 /**
  * One message in the conversation: a picture beside the words that were said.
@@ -51,6 +52,20 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(image);
+        clipToCircle(displayPicture);
+    }
+
+    /**
+     * Crops the picture to a circle, so it sits inside the round avatar ring.
+     *
+     * <p>Done in code because CSS can round a region's background but cannot clip
+     * an image.
+     *
+     * @param picture the image view to crop
+     */
+    private static void clipToCircle(ImageView picture) {
+        double radius = picture.getFitWidth() / 2;
+        picture.setClip(new Circle(radius, radius, radius));
     }
 
     /**

@@ -91,6 +91,7 @@ ____________________________________________________________
 +----------------------------------------------------------+
 Hello! I'm David Goggins.
 What can I do for you?
+Type help to see the commands I understand.
 ____________________________________________________________
 
 ```
@@ -122,6 +123,7 @@ for each way its input can be wrong.
 | `delete` | TC15 | TC16 |
 | Parsing the command word | TC7, TC17 | TC10, TC17 |
 | Stored state after errors | TC14 | TC12, TC13, TC14, TC16 |
+| `help` | TC25, TC26 | TC27 |
 
 
 ### TC1: Greets the user and says goodbye
@@ -459,7 +461,7 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! What are you saying! I don't know the command "read". I understand: todo, deadline, event, list, mark, unmark, delete, bye.
+ OOPS! What are you saying! I don't know the command "read". Type help to see the commands I understand.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -1018,6 +1020,13 @@ ____________________________________________________________
 ____________________________________________________________
 
 ____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: 2026-09-13)
+ 3.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
+____________________________________________________________
+
+____________________________________________________________
  Got it. I've added this task:
    [T][ ] run 10 miles
  Now you have 4 tasks in the list.
@@ -1098,6 +1107,11 @@ ____________________________________________________________
  1.[T][ ] read book
 ____________________________________________________________
 
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] read book
+____________________________________________________________
+
 {{FAREWELL}}
 ```
 
@@ -1132,6 +1146,12 @@ bye
 ```text
  Warning: skipped 8 unreadable lines in data/tasks.txt. They will be dropped the next time the list changes.
 {{GREETING}}
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: 2026-09-13)
+____________________________________________________________
+
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] read book
@@ -1185,4 +1205,113 @@ ____________________________________________________________
 
 ```text
 T | 0 | read book
+```
+
+### TC25: Shows the help page
+
+**Aim:** Checks that `help` lists every command with its syntax and an example for each command that adds a task, and that asking for help leaves the list and the save file untouched.
+
+**Saved file:**
+
+```text
+T | 0 | read book
+```
+
+**Input:**
+
+```text
+help
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] read book
+____________________________________________________________
+
+____________________________________________________________
+ Here are the commands I understand:
+ todo <description>
+ Example: todo read book
+ deadline <description> /by <yyyy-mm-dd>
+ Example: deadline return book /by 2026-09-10
+ event <description> /from <yyyy-mm-dd> /to <yyyy-mm-dd>
+ Example: event project meeting /from 2026-09-10 /to 2026-09-11
+ list
+ find <keyword>
+ mark <task number>
+ unmark <task number>
+ delete <task number>
+ help
+ bye
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+**Expected saved file:**
+
+```text
+T | 0 | read book
+```
+
+### TC26: Accepts help in any capitalisation and spacing
+
+**Aim:** Checks that `help` follows the same rules as every other command word: case does not matter and surrounding spaces are ignored.
+
+**Input:**
+
+```text
+  HELP  
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Here are the commands I understand:
+ todo <description>
+ Example: todo read book
+ deadline <description> /by <yyyy-mm-dd>
+ Example: deadline return book /by 2026-09-10
+ event <description> /from <yyyy-mm-dd> /to <yyyy-mm-dd>
+ Example: event project meeting /from 2026-09-10 /to 2026-09-11
+ list
+ find <keyword>
+ mark <task number>
+ unmark <task number>
+ delete <task number>
+ help
+ bye
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC27: Rejects help followed by details
+
+**Aim:** Checks that `help` takes nothing after it, so a guess such as `help deadline` is explained rather than silently treated as plain `help`.
+
+**Input:**
+
+```text
+help deadline
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ OOPS! The help command takes no details. Try: help
+____________________________________________________________
+
+{{FAREWELL}}
 ```

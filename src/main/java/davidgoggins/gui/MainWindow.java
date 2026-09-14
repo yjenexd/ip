@@ -39,6 +39,9 @@ public class MainWindow extends AnchorPane {
     /** The chatbot that answers each command; set by the class that builds the window. */
     private DavidGoggins davidGoggins;
 
+    /** The help window, or null until the user first types {@code help}. */
+    private HelpWindow helpWindow;
+
     private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private final Image botImage = new Image(this.getClass().getResourceAsStream("/images/DaDavidGoggins.png"));
 
@@ -88,6 +91,10 @@ public class MainWindow extends AnchorPane {
                 DialogBox.getBotDialog(response, botImage));
         userInput.clear();
 
+        if (davidGoggins.isHelpCommand(input)) {
+            showHelpWindow();
+        }
+
         if (davidGoggins.isExitCommand(input)) {
             userInput.setDisable(true);
             sendButton.setDisable(true);
@@ -95,6 +102,21 @@ public class MainWindow extends AnchorPane {
             pause.setOnFinished(event -> Platform.exit());
             pause.play();
         }
+    }
+
+    /**
+     * Shows the help window, creating it the first time help is asked for.
+     *
+     * <p>Created lazily because its owner, the main window's stage, does not exist yet
+     * when the FXML is loaded.
+     */
+    private void showHelpWindow() {
+        if (helpWindow == null) {
+            // This controller is not itself on screen (the FXML names it as fx:controller),
+            // so the owning window is found through a control that is.
+            helpWindow = new HelpWindow(userInput.getScene().getWindow(), davidGoggins.getHelp());
+        }
+        helpWindow.showOrFocus();
     }
 
     /** Adds one message from the chatbot, used for messages the user did not prompt. */
