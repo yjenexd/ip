@@ -244,15 +244,7 @@ public class DavidGoggins {
                     "Tell me which task number NOW!, e.g. " + commandName + " 2.");
         }
 
-        int taskNumber = Parser.parseTaskNumber(argument, commandName);
-
-        if (!tasks.isValidTaskNumber(taskNumber)) {
-            String advice = tasks.size() == 0
-                    ? "your list is empty, so add a task first."
-                    : "pick a number from 1 to " + tasks.size() + ".";
-            throw new DavidGogginsException("There's no task " + taskNumber + " in your list: " + advice);
-        }
-
+        int taskNumber = parseExistingTaskNumber(argument, commandName);
         Task task = isDone ? tasks.mark(taskNumber) : tasks.unmark(taskNumber);
         String message = isDone
                 ? " Nice! I've marked this task as done:"
@@ -296,7 +288,26 @@ public class DavidGoggins {
                     "Tell me which task number to delete, e.g. delete 2.");
         }
 
-        int taskNumber = Parser.parseTaskNumber(argument, "delete");
+        int taskNumber = parseExistingTaskNumber(argument, "delete");
+        Task removedTask = tasks.remove(taskNumber);
+        ui.show(" Noted. I've removed this task:",
+                "   " + removedTask,
+                " Now you have " + taskCount() + " in the list.");
+    }
+
+    /**
+     * Returns the task number the user typed, checked against the current list.
+     *
+     * <p>Shared by every command that picks a task by number, so they all refuse a bad
+     * number with the same advice.
+     *
+     * @param argument    the task number the user typed, as text, not empty
+     * @param commandName the command it was typed for, named in the error message
+     * @return a 1-based number that refers to an existing task
+     * @throws DavidGogginsException if the argument is not a number or is out of range
+     */
+    private int parseExistingTaskNumber(String argument, String commandName) throws DavidGogginsException {
+        int taskNumber = Parser.parseTaskNumber(argument, commandName);
 
         // A number outside the list is the user's mistake, not a bug, so it is
         // reported the same way as any other bad command.
@@ -306,10 +317,6 @@ public class DavidGoggins {
                     : "pick a number from 1 to " + tasks.size() + ".";
             throw new DavidGogginsException("There's no task " + taskNumber + " in your list: " + advice);
         }
-
-        Task removedTask = tasks.remove(taskNumber);
-        ui.show(" Noted. I've removed this task:",
-                "   " + removedTask,
-                " Now you have " + taskCount() + " in the list.");
+        return taskNumber;
     }
 }
