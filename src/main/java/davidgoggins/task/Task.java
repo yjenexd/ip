@@ -1,5 +1,9 @@
 package davidgoggins.task;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import davidgoggins.DavidGogginsException;
 
 /**
@@ -24,6 +28,9 @@ public abstract class Task {
      * produce an extra field on save and be unreadable on load, so it is rejected.
      */
     public static final String SEPARATOR_CHAR = "|";
+
+    /** The one date format accepted for dated tasks, e.g. {@code 2019-10-15}. */
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /** The task's text, kept exactly as the user typed it. */
     protected String description;
@@ -162,6 +169,26 @@ public abstract class Task {
         if (fields.length != expected) {
             throw new DavidGogginsException("a " + type + " needs " + expected
                     + " fields, found " + fields.length);
+        }
+    }
+
+    /**
+     * Turns a date the user typed into a {@link LocalDate}.
+     *
+     * <p>Static so a subclass constructor can call it while its {@code final} date
+     * fields are still being assigned.
+     *
+     * @param date    the text the user typed, expected as {@code yyyy-mm-dd}
+     * @param example a correct command to suggest if the date is malformed
+     * @return the date the text describes
+     * @throws DavidGogginsException if the text is not a date in that format
+     */
+    protected static LocalDate parseDate(String date, String example) throws DavidGogginsException {
+        try {
+            return LocalDate.parse(date, DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new DavidGogginsException("I need the date as yyyy-mm-dd, not \"" + date
+                    + "\". Try: " + example);
         }
     }
 

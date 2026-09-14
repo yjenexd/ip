@@ -1,15 +1,13 @@
 package davidgoggins.task;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 import davidgoggins.DavidGogginsException;
 
 /** A task that must be finished by a given time. */
 public class Deadlines extends Task {
-    /** The one date format accepted, both when reading input and when printing. */
-    private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /** A correct deadline command, suggested when the date cannot be read. */
+    private static final String EXAMPLE = "deadline return book /by 2019-10-15";
 
     /**
      * When the task is due.
@@ -28,12 +26,7 @@ public class Deadlines extends Task {
      */
     public Deadlines(String description, String by) throws DavidGogginsException {
         super(description);
-        try {
-            this.by = LocalDate.parse(by, DISPLAY_FORMATTER);
-        } catch (DateTimeParseException e) {
-            throw new DavidGogginsException("I need the date as yyyy-mm-dd, not \"" + by
-                    + "\". Try: deadline return book /by 2019-10-15");
-        }
+        this.by = parseDate(by, EXAMPLE);
     }
 
     /** Shown as {@code [D][ ] return book (by: 2019-10-15)}. */
