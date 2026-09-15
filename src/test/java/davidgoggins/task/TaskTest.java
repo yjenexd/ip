@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -135,5 +137,18 @@ public class TaskTest {
     @Test
     public void matches_keywordInMiddleOfWord_true() {
         assertTrue(new Todo("run 10 miles").matches("MILE"));
+    }
+
+    /** Matching must not depend on the machine's language, where "I" can lower-case oddly. */
+    @Test
+    public void matches_upperCaseIOnTurkishMachine_stillMatches() {
+        Locale original = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+        try {
+            assertTrue(new Todo("LIFT weights").matches("lift"));
+            assertTrue(new Todo("LIFT weights").isDuplicateOf(new Todo("lift weights")));
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 }

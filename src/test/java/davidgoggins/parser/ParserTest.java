@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -287,5 +289,20 @@ public class ParserTest {
     public void parseEvent_malformedInput_exceptionNamesProblem(String argument, String expectedAdvice) {
         DavidGogginsException e = assertThrows(DavidGogginsException.class, () -> Parser.parseEvent(argument));
         assertTrue(e.getMessage().contains(expectedAdvice), e.getMessage());
+    }
+
+    /**
+     * In a Turkish locale, lower-casing "I" gives a dotless "ı", so a command typed in
+     * capitals would not be recognised if the machine's language were used.
+     */
+    @Test
+    public void parseCommand_upperCaseIOnTurkishMachine_commandRecognised() {
+        Locale original = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+        try {
+            assertEquals("list", Parser.parseCommand("LIST"));
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 }
