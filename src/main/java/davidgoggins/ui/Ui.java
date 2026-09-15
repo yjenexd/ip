@@ -216,6 +216,18 @@ public class Ui {
         System.out.println(WARNING_PREFIX + message);
     }
 
+    /**
+     * Prints warnings that were captured earlier, as the text UI shows warnings.
+     *
+     * <p>Used for warnings raised while the save file was loaded, which are captured so
+     * the GUI can show them too, and printed here for the text UI before the greeting.
+     *
+     * @param warnings the captured warnings, one per line, or an empty string for none
+     */
+    public void showCapturedWarnings(String warnings) {
+        warnings.lines().forEach(line -> System.out.println(" " + line));
+    }
+
     /** Prints the banner and the opening greeting. */
     public void showWelcome() {
         System.out.println(DIVIDER);

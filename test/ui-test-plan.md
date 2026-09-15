@@ -1139,7 +1139,7 @@ ____________________________________________________________
 
 ### TC23: Skips corrupted lines and keeps the readable ones
 
-**Aim:** Checks the stretch goal. Each line of the save file can be malformed in a different way — an unknown type, a done flag that is not 0 or 1, too few fields, too many, an empty field, no separators at all — and none of them should stop the program starting. The readable lines must still load, and the user must be told how many were dropped.
+**Aim:** Checks the stretch goal. Each line of the save file can be malformed in a different way — an unknown type, a done flag that is not 0 or 1, too few fields, too many, an empty field, no separators at all — and none of them should stop the program starting. The readable lines must still load, and the user must be told how many were dropped and where the untouched original was copied.
 
 **Saved file:**
 
@@ -1166,7 +1166,7 @@ bye
 **Expected output:**
 
 ```text
- Warning: skipped 8 unreadable lines in data/tasks.txt. They will be dropped the next time the list changes.
+ Warning: skipped 8 unreadable lines in data/tasks.txt. Your original file is backed up to data/tasks.txt.bak.
 {{GREETING}}
 ____________________________________________________________
  Here's what you signed up for:

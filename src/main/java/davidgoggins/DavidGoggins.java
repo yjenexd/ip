@@ -31,6 +31,15 @@ public class DavidGoggins {
     private static final String LIST_COMMAND = "list";
 
     /**
+     * What the user is told when a bug, rather than their input, stops a command.
+     *
+     * <p>Kept vague on purpose: the details go to the console for whoever fixes it, and
+     * would only confuse the user, who can do nothing about them.
+     */
+    private static final String UNEXPECTED_ERROR_MESSAGE = "Something broke on my end. That one's on me,"
+            + " not you. Try again, and if it keeps happening, restart me.";
+
+    /**
      * The help page, one entry per line, without the leading space the text UI adds.
      *
      * <p>Kept beside {@link #handleCommand} so that adding a command and documenting it
@@ -66,6 +75,9 @@ public class DavidGoggins {
     /** Whether the reply last returned by {@link #getResponse} reported an error. */
     private boolean isLastResponseError;
 
+    /** Warnings raised while loading the save file, one per line, or empty if there were none. */
+    private final String loadWarnings;
+
     /**
      * Builds a chatbot that keeps its tasks in the given file.
      *
@@ -80,7 +92,10 @@ public class DavidGoggins {
         // The path is passed in rather than fixed inside Storage, so the one decision
         // about where tasks live is made in the class that assembles the program.
         storage = new Storage(filePath, ui);
+        // Captured rather than printed, so the GUI can show them as well as the text UI.
+        ui.startCapture();
         tasks = new TaskList(storage);
+        loadWarnings = ui.takeCaptured();
     }
 
     /**
@@ -88,6 +103,7 @@ public class DavidGoggins {
      * carries out commands until they type {@code bye} or the input runs out.
      */
     public void run() {
+        ui.showCapturedWarnings(loadWarnings);
         ui.showWelcome();
 
         // The tasks were already read from disk by the TaskList built in the
@@ -114,6 +130,9 @@ public class DavidGoggins {
                     // Every expected problem ends up here, so the error format is
                     // defined once instead of in each command method.
                     ui.showError(e.getMessage());
+                } catch (RuntimeException e) {
+                    // A bug should not end the session and lose the user's place.
+                    reportUnexpected(e);
                 }
             }
         } finally {
@@ -161,12 +180,35 @@ public class DavidGoggins {
             } catch (DavidGogginsException e) {
                 isLastResponseError = true;
                 ui.showError(e.getMessage());
+            } catch (RuntimeException e) {
+                // Caught here so a bug shows as a reply instead of freezing the window.
+                isLastResponseError = true;
+                reportUnexpected(e);
             }
         }
 
         return ui.takeCaptured();
     }
 
+    /**
+     * Tells the user a command failed because of a bug, and logs the details.
+     *
+     * @param e the unexpected exception
+     */
+    private void reportUnexpected(RuntimeException e) {
+        // Standard error, so the stack trace reaches a developer without entering the reply.
+        e.printStackTrace();
+        ui.showError(UNEXPECTED_ERROR_MESSAGE);
+    }
+
+    /**
+     * Returns the warnings raised while loading the save file, for the GUI to show.
+     *
+     * @return the warnings, one per line, or an empty string if loading went smoothly
+     */
+    public String getLoadWarnings() {
+        return loadWarnings;
+    }
 
     /**
      * Returns true if the reply last returned by {@link #getResponse} was an error.
