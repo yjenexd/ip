@@ -1,7 +1,10 @@
 package davidgoggins.storage;
 
 import java.io.IOException;
+import java.nio.charset.CharacterCodingException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -23,6 +26,9 @@ import davidgoggins.ui.Ui;
  */
 public class Storage {
 
+    /** Added to the save file's name to name the copy kept before a damaged file is replaced. */
+    private static final String BACKUP_SUFFIX = ".bak";
+
     /**
      * Where the list is saved between runs.
      *
@@ -34,6 +40,14 @@ public class Storage {
 
     /** Used to warn the user when a load or a save does not work out. */
     private final Ui ui;
+
+    /**
+     * Whether saving may replace the file on disk.
+     *
+     * <p>False once the file could neither be read nor copied aside, so the only copy of
+     * the user's tasks is never overwritten by the empty list that loading produced.
+     */
+    private boolean canOverwrite = true;
 
     /**
      * Creates a storage that reads from and writes to the given file.
@@ -58,6 +72,12 @@ public class Storage {
      * @param tasks the tasks to write, in the order they should be stored
      */
     public void save(List<Task> tasks) {
+        if (!canOverwrite) {
+            ui.showWarning("not saving, so the unreadable " + file + " is not overwritten. "
+                    + "Your changes are in this session only.");
+            return;
+        }
+
         // Every line, the last included, ends with a line separator, as a text file should.
         String lines = tasks.stream()
                 .map(task -> task.toSaveFormat() + System.lineSeparator())
@@ -85,7 +105,7 @@ public class Storage {
             // Saving is a background chore, so a failure warns the user but does not
             // stop the command they asked for from succeeding in memory.
             ui.showWarning("could not save your tasks to " + file
-                    + " (" + e.getMessage() + "). Your last change is in this session only.");
+                    + " (" + describe(e) + "). Your last change is in this session only.");
         } finally {
             deleteIfPresent(temporary);
         }
@@ -145,8 +165,8 @@ public class Storage {
             return tasks;
         } catch (IOException e) {
             // Covers an unreadable file, a folder where the file should be, and so on.
-            ui.showWarning("could not read your saved tasks ("
-                    + e.getMessage() + "). Starting with an empty list.");
+            ui.showWarning("could not read your saved tasks (" + describe(e)
+                    + "). Starting with an empty list." + backUp());
             return tasks;
         }
 
@@ -164,9 +184,55 @@ public class Storage {
 
         if (skipped > 0) {
             ui.showWarning("skipped " + skipped + " unreadable line"
-                    + (skipped == 1 ? "" : "s") + " in " + file
-                    + ". They will be dropped the next time the list changes.");
+                    + (skipped == 1 ? "" : "s") + " in " + file + "." + backUp());
         }
         return tasks;
+    }
+
+    /**
+     * Copies a damaged save file aside before the next save overwrites it.
+     *
+     * <p>Lines that cannot be read are dropped the next time the list is saved, so
+     * without a copy a hand-editing slip would silently cost the user those tasks.
+     *
+     * @return a sentence, with a leading space, saying where the copy is or what will be
+     *         lost; empty if there is nothing to copy
+     */
+    private String backUp() {
+        if (!Files.isRegularFile(file)) {
+            // A folder or other oddity in the file's place has no lines worth keeping.
+            return "";
+        }
+        Path backup = file.resolveSibling(file.getFileName() + BACKUP_SUFFIX);
+        try {
+            Files.copy(file, backup, StandardCopyOption.REPLACE_EXISTING);
+            return " Your original file is backed up to " + backup + ".";
+        } catch (IOException e) {
+            canOverwrite = false;
+            return " It could not be backed up (" + describe(e)
+                    + ") either, so I won't save over it: changes stay in this session only.";
+        }
+    }
+
+    /**
+     * Returns a short, plain-English reason for a file error.
+     *
+     * <p>Several of Java's file exceptions carry only the file name as their message,
+     * which tells the user where it went wrong but not what went wrong.
+     *
+     * @param e the error to describe
+     * @return the reason, e.g. {@code "permission denied"}
+     */
+    private static String describe(IOException e) {
+        if (e instanceof AccessDeniedException) {
+            return "permission denied";
+        }
+        if (e instanceof CharacterCodingException) {
+            return "it is not a plain text file";
+        }
+        if (e instanceof FileAlreadyExistsException) {
+            return "a file is in the way of " + e.getMessage();
+        }
+        return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
     }
 }

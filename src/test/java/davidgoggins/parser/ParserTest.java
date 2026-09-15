@@ -57,12 +57,12 @@ public class ParserTest {
         assertEquals("[D][ ] return book (by: 2026-09-10)", deadline.toString());
     }
 
-    /** Splitting stops after the first {@code /by}, so a later one is part of the date. */
+    /** A second {@code /by} is named as the problem, rather than reported as a bad date. */
     @Test
-    public void parseDeadline_secondByKeyword_onlyFirstSplits() {
+    public void parseDeadline_secondByKeyword_exceptionThrown() {
         DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
                 Parser.parseDeadline("return book /by 2026-09-10 /by 2026-09-11"));
-        assertTrue(e.getMessage().contains("yyyy-mm-dd"), e.getMessage());
+        assertTrue(e.getMessage().contains("/by more than once"), e.getMessage());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class ParserTest {
     public void parseDeadline_impossibleDate_exceptionThrown() {
         DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
                 Parser.parseDeadline("return book /by 2026-13-40"));
-        assertTrue(e.getMessage().contains("yyyy-mm-dd"), e.getMessage());
+        assertTrue(e.getMessage().contains("not a real date"), e.getMessage());
     }
 
     @Test

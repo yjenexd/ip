@@ -69,6 +69,30 @@ public class TaskList {
     }
 
     /**
+     * Returns how many tasks in the list are done.
+     *
+     * @return a count between 0 and {@link #size()} inclusive
+     */
+    public int countDone() {
+        return (int) tasks.stream().filter(Task::isDone).count();
+    }
+
+    /**
+     * Returns the number of a task already in the list that duplicates the given one.
+     *
+     * @param task the task about to be added
+     * @return the 1-based number of the first duplicate, or 0 if there is none
+     */
+    public int findDuplicateNumber(Task task) {
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).isDuplicateOf(task)) {
+                return i + 1;
+            }
+        }
+        return 0;
+    }
+
+    /**
      * Returns true if {@code taskNumber} refers to an existing task.
      *
      * @param taskNumber the 1-based number the user typed

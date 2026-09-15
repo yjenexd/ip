@@ -85,6 +85,19 @@ public class TaskListTest {
         assertEquals("", TaskList.format(List.of()));
     }
 
+    @Test
+    public void countDone_someTasksDone_onlyDoneTasksCounted() throws DavidGogginsException {
+        Todo doneTodo = new Todo("run 10 miles");
+        doneTodo.markAsDone();
+        TaskList tasks = listOf(new Todo("read book"), doneTodo);
+        assertEquals(1, tasks.countDone());
+    }
+
+    @Test
+    public void countDone_emptyList_zeroReturned() {
+        assertEquals(0, listOf().countDone());
+    }
+
     /** The whole list is numbered by the same code the search results use. */
     @Test
     public void toString_wholeList_sameFormatAsMatches() throws DavidGogginsException {

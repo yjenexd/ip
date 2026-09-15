@@ -7,7 +7,7 @@ import davidgoggins.DavidGogginsException;
 /** A task that must be finished by a given time. */
 public class Deadline extends Task {
     /** A correct deadline command, suggested when the date cannot be read. */
-    private static final String EXAMPLE = "deadline return book /by 2019-10-15";
+    private static final String EXAMPLE = "deadline return book /by 2026-09-10";
 
     /**
      * When the task is due.
@@ -40,5 +40,15 @@ public class Deadline extends Task {
     public String toSaveFormat() {
         return toSaveFormat("D", by.toString());
     }
-}
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A deadline is only a duplicate if its date also matches.
+     */
+    @Override
+    public boolean isDuplicateOf(Task other) {
+        // super checks the class first, so the cast below is always safe.
+        return super.isDuplicateOf(other) && by.equals(((Deadline) other).by);
+    }
+}

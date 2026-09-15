@@ -21,10 +21,14 @@ public class Main extends Application {
     private static final String WINDOW_TITLE = "David Goggins";
 
     /** The smallest height, in pixels, the user can shrink the window to. */
-    private static final double MIN_WINDOW_HEIGHT = 480.0;
+    private static final double MIN_WINDOW_HEIGHT = 360.0;
 
-    /** The smallest width, in pixels, the user can shrink the window to. */
-    private static final double MIN_WINDOW_WIDTH = 440.0;
+    /**
+     * The smallest width, in pixels, the user can shrink the window to.
+     *
+     * <p>Narrow enough to tuck the app beside other windows; the bubbles re-wrap to fit.
+     */
+    private static final double MIN_WINDOW_WIDTH = 340.0;
 
     /** The chatbot the window sends the user's commands to. */
     private final DavidGoggins davidGoggins = new DavidGoggins();
