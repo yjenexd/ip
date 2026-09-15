@@ -27,6 +27,9 @@ public class DavidGoggins {
     /** The command that shows how to use every other command. */
     private static final String HELP_COMMAND = "help";
 
+    /** The command that shows every task. */
+    private static final String LIST_COMMAND = "list";
+
     /**
      * The help page, one entry per line, without the leading space the text UI adds.
      *
@@ -164,6 +167,7 @@ public class DavidGoggins {
         return ui.takeCaptured();
     }
 
+
     /**
      * Returns true if the reply last returned by {@link #getResponse} was an error.
      *
@@ -258,7 +262,12 @@ public class DavidGoggins {
         switch (command) {
             case "" -> throw new DavidGogginsException(
                     "You typed nothing. Silence won't get it done. Give me a command, e.g. list.");
-            case "list" -> showTasks();
+            case LIST_COMMAND -> {
+                requireNoDetails(argument, LIST_COMMAND);
+                showTasks();
+            }
+            // A bare "bye" never gets here: it ends the conversation before parsing.
+            case EXIT_COMMAND -> requireNoDetails(argument, EXIT_COMMAND);
             case "mark" -> setDone(argument, true);
             case "unmark" -> setDone(argument, false);
             case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
@@ -280,14 +289,29 @@ public class DavidGoggins {
      * @throws DavidGogginsException if anything was typed after "help"
      */
     private void showHelp(String argument) throws DavidGogginsException {
-        if (!argument.isEmpty()) {
-            throw new DavidGogginsException("The help command takes no details. Try: help");
-        }
+        requireNoDetails(argument, HELP_COMMAND);
         // The leading space matches every other reply in the text UI.
         String[] indentedLines = Arrays.stream(HELP_LINES)
                 .map(line -> " " + line)
                 .toArray(String[]::new);
         ui.show(indentedLines);
+    }
+
+    /**
+     * Refuses details typed after a command that takes none.
+     *
+     * <p>Silently ignoring them would hide a mistake: {@code list done} looks like it
+     * should filter the list, so the user is told it does not rather than left guessing.
+     *
+     * @param argument    everything typed after the command word
+     * @param commandName the command, named in the advice
+     * @throws DavidGogginsException if the argument is not empty
+     */
+    private static void requireNoDetails(String argument, String commandName) throws DavidGogginsException {
+        if (!argument.isEmpty()) {
+            throw new DavidGogginsException("The " + commandName + " command takes no details. Try: "
+                    + commandName);
+        }
     }
 
     /** Prints every task, numbered from 1, followed by how far the user has got. */
@@ -373,8 +397,15 @@ public class DavidGoggins {
      * Adds a task to the list and confirms it, including the new list size.
      *
      * @param task the task to add
+     * @throws DavidGogginsException if the same task is already in the list
      */
-    private void addTask(Task task) {
+    private void addTask(Task task) throws DavidGogginsException {
+        int duplicateNumber = tasks.findDuplicateNumber(task);
+        if (duplicateNumber > 0) {
+            throw new DavidGogginsException("You already logged that as task " + duplicateNumber + ": "
+                    + tasks.get(duplicateNumber) + ". Writing it down twice won't get it done twice.");
+        }
+
         int sizeBefore = tasks.size();
         tasks.add(task);
         // The confirmation below quotes the new size, so it must reflect this one addition.

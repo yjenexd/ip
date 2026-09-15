@@ -124,6 +124,10 @@ for each way its input can be wrong.
 | Parsing the command word | TC7, TC17 | TC10, TC17 |
 | Stored state after errors | TC14 | TC12, TC13, TC14, TC16 |
 | `help` | TC25, TC26 | TC27 |
+| Duplicate tasks | TC28 | TC28 |
+| Flags (`/by`, `/from`, `/to`) | TC29 | TC29 |
+| Details after `list` / `bye`, several task numbers | TC30 | TC30 |
+| Dates that do not exist | TC31 | TC31 |
 
 
 ### TC1: Greets the user and says goodbye
@@ -908,7 +912,7 @@ ____________________________________________________________
 ____________________________________________________________
 
 ____________________________________________________________
- NO EXCUSES! "99999999999999999999" is not a task number. Use a whole number, e.g. mark 2.
+ NO EXCUSES! There's no task 99999999999999999999 in your list. That number is way past the end of it.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -1333,6 +1337,250 @@ bye
 {{GREETING}}
 ____________________________________________________________
  NO EXCUSES! The help command takes no details. Try: help
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC28: Rejects a task that is already in the list
+
+**Aim:** Checks that adding the same task twice is refused, ignoring case, extra spaces and whether the first copy is done, while a deadline with a different date and a one-day event are still accepted.
+
+**Input:**
+
+```text
+todo run 10 miles
+TODO   Run  10 Miles
+deadline return book /by 2026-09-13
+deadline Return Book /by 2026-09-14
+deadline return book /by 2026-09-13
+mark 1
+todo run 10 miles
+event camp /from 2026-10-01 /to 2026-10-01
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] run 10 miles
+ You have 1 task in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! You already logged that as task 1: [T][ ] run 10 miles. Writing it down twice won't get it done twice.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [D][ ] return book (by: 2026-09-13)
+ You have 2 tasks in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [D][ ] Return Book (by: 2026-09-14)
+ You have 3 tasks in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! You already logged that as task 2: [D][ ] return book (by: 2026-09-13). Writing it down twice won't get it done twice.
+____________________________________________________________
+
+____________________________________________________________
+ DONE. That's one less excuse:
+   [T][X] run 10 miles
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! You already logged that as task 1: [T][X] run 10 miles. Writing it down twice won't get it done twice.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [E][ ] camp (from: 2026-10-01 to: 2026-10-01)
+ You have 4 tasks in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][X] run 10 miles
+ 2.[D][ ] return book (by: 2026-09-13)
+ 3.[D][ ] Return Book (by: 2026-09-14)
+ 4.[E][ ] camp (from: 2026-10-01 to: 2026-10-01)
+ 1 of 4 done. You're not finished.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC29: Rejects repeated, misplaced and unknown flags
+
+**Aim:** Checks that a flag given twice, a flag that belongs to another task type, an unknown flag, and `/to` before `/from` are each named as the problem instead of surfacing as a confusing date error, while a slash inside a path is still fine in a todo.
+
+**Input:**
+
+```text
+deadline return book /by 2026-09-13 /by 2026-09-14
+deadline return book /from 2026-09-13
+deadline return book /at 2026-09-13
+todo read book /by 2026-09-13
+event camp /from 2026-10-01 /from 2026-10-02 /to 2026-10-03
+event camp /to 2026-10-03 /from 2026-10-01
+event camp /from 2026-10-01 /to 2026-10-03 /by 2026-10-02
+todo fix /etc/hosts
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ NO EXCUSES! You gave /by more than once. A deadline has one due date. Try: deadline return book /by 2026-09-10
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! A deadline does not take a /from part, only /by. Try: deadline return book /by 2026-09-10
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! A deadline does not take a /at part, only /by. Try: deadline return book /by 2026-09-10
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! A todo has no dates, so it takes no /by part. Use deadline or event for a dated task. Try: todo read book
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! You gave /from more than once. An event starts once. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! Put /from before /to: start first, then finish. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! An event does not take a /by part, only /from and /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] fix /etc/hosts
+ You have 1 task in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][ ] fix /etc/hosts
+ 0 of 1 done. Stop planning and start doing.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC30: Rejects details after bare commands and several task numbers
+
+**Aim:** Checks that `list` and `bye` refuse anything typed after them instead of ignoring it or calling `bye` unknown, and that `mark` and `delete` ask for one task at a time, leaving the list untouched.
+
+**Input:**
+
+```text
+todo read book
+list all
+bye now
+mark 1 2
+delete 1 1
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] read book
+ You have 1 task in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! The list command takes no details. Try: list
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! The bye command takes no details. Try: bye
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! One task at a time. Give me a single number, e.g. mark 2.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! One task at a time. Give me a single number, e.g. delete 2.
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC31: Rejects dates that do not exist
+
+**Aim:** Checks that a correctly written date naming a day that does not exist, such as 30 February or 31 April, is refused instead of being quietly moved to the end of the month, that 29 February is accepted only in a leap year, and that an event ending before it starts is still refused.
+
+**Input:**
+
+```text
+deadline pay rent /by 2026-02-30
+deadline pay rent /by 2027-02-29
+deadline pay rent /by 2028-02-29
+event trip /from 2026-04-31 /to 2026-05-02
+event trip /from 2026-05-03 /to 2026-05-02
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ NO EXCUSES! "2026-02-30" is not a real date. Check the month and the day: that day does not exist.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! "2027-02-29" is not a real date. Check the month and the day: that day does not exist.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [D][ ] pay rent (by: 2028-02-29)
+ You have 1 task in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! "2026-04-31" is not a real date. Check the month and the day: that day does not exist.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! An event cannot end before it starts: you gave a start of "2026-05-03" and an end of "2026-05-02".
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[D][ ] pay rent (by: 2028-02-29)
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
