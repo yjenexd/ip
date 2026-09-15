@@ -60,6 +60,9 @@ public class DavidGoggins {
     /** The tasks the user has added so far. */
     private final TaskList tasks;
 
+    /** Whether the reply last returned by {@link #getResponse} reported an error. */
+    private boolean isLastResponseError;
+
     /**
      * Builds a chatbot that keeps its tasks in the given file.
      *
@@ -142,6 +145,7 @@ public class DavidGoggins {
     public String getResponse(String userInput) {
         ui.startCapture();
         String trimmedInput = userInput.trim();
+        isLastResponseError = false;
 
         if (isExitCommand(trimmedInput)) {
             ui.show(ui.getFarewell());
@@ -152,11 +156,23 @@ public class DavidGoggins {
             try {
                 handleCommand(trimmedInput);
             } catch (DavidGogginsException e) {
+                isLastResponseError = true;
                 ui.showError(e.getMessage());
             }
         }
 
         return ui.takeCaptured();
+    }
+
+    /**
+     * Returns true if the reply last returned by {@link #getResponse} was an error.
+     *
+     * <p>Lets the GUI style an error differently without parsing the reply's words.
+     *
+     * @return true if the last command could not be carried out
+     */
+    public boolean isLastResponseError() {
+        return isLastResponseError;
     }
 
     /**

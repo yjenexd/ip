@@ -42,7 +42,7 @@ public class MainWindow extends AnchorPane {
     /** The help window, or null until the user first types {@code help}. */
     private HelpWindow helpWindow;
 
-    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
+    /** The chatbot's picture, shown beside each of its replies; the user has none. */
     private final Image botImage = new Image(this.getClass().getResourceAsStream("/images/DaDavidGoggins.png"));
 
     /** Keeps the newest message in view as the conversation grows. */
@@ -86,9 +86,10 @@ public class MainWindow extends AnchorPane {
 
         assert davidGoggins != null : "setDavidGoggins() must be called before the user can type";
         String response = davidGoggins.getResponse(input);
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getBotDialog(response, botImage));
+        DialogBox reply = davidGoggins.isLastResponseError()
+                ? DialogBox.getErrorDialog(response, botImage)
+                : DialogBox.getBotDialog(response, botImage);
+        dialogContainer.getChildren().addAll(DialogBox.getUserDialog(input), reply);
         userInput.clear();
 
         if (davidGoggins.isHelpCommand(input)) {
