@@ -89,8 +89,8 @@ ____________________________________________________________
 |                                                          |
 |                     >> STAY HARD. <<                     |
 +----------------------------------------------------------+
-Hello! I'm David Goggins.
-What can I do for you?
+I'm David Goggins. Nobody is coming to save you, so let's get to work.
+What are you going to conquer today?
 Type help to see the commands I understand.
 ____________________________________________________________
 
@@ -102,7 +102,7 @@ The sign-off printed as the program exits.
 
 ```text
 ____________________________________________________________
-Bye. Remember, stay hard!
+Rest up. Tomorrow we go again. Stay hard!
 ____________________________________________________________
 ```
 
@@ -159,7 +159,7 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Your list is empty. Get after it!
+ Your list is empty. Comfortable, aren't you? Add something hard.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -183,21 +183,22 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] run 10 miles
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
  2.[T][ ] run 10 miles
+ 0 of 2 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -224,37 +225,39 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] run 10 miles
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] run 10 miles
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
  2.[T][X] run 10 miles
+ 1 of 2 done. You're not finished.
 ____________________________________________________________
 
 ____________________________________________________________
- OK, I've marked this task as not done yet:
+ Not done after all? Then it's still waiting for you:
    [T][ ] run 10 miles
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
  2.[T][ ] run 10 miles
+ 0 of 2 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -277,13 +280,13 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task 5 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task 5 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -307,17 +310,17 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! "two" is not a task number you log! Use a whole number, e.g. mark 2.
+ NO EXCUSES! "two" is not a task number. Use a whole number, e.g. mark 2.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me which task number NOW!, e.g. unmark 2.
+ NO EXCUSES! Which task? Give me the number, e.g. unmark 2.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -339,9 +342,9 @@ BYE
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -362,9 +365,9 @@ todo read book
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -393,52 +396,53 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [D][ ] return book (by: 2026-06-06)
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [E][ ] project meeting (from: 2026-08-06 to: 2026-08-07)
- Now you have 3 tasks in the list.
+ You have 3 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] join sports club
- Now you have 4 tasks in the list.
+ You have 4 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] read book
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] join sports club
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] borrow book
- Now you have 5 tasks in the list.
+ You have 5 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][X] read book
  2.[D][ ] return book (by: 2026-06-06)
  3.[E][ ] project meeting (from: 2026-08-06 to: 2026-08-07)
  4.[T][X] join sports club
  5.[T][ ] borrow book
+ 2 of 5 done. You're not finished.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -461,11 +465,11 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! What are you saying! I don't know the command "read". Type help to see the commands I understand.
+ NO EXCUSES! I don't know the command "read". Stop guessing. Type help to see the commands I understand.
 ____________________________________________________________
 
 ____________________________________________________________
- Your list is empty. Get after it!
+ Your list is empty. Comfortable, aren't you? Add something hard.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -488,11 +492,11 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! The description of a todo cannot be empty you log! Try: todo read book
+ NO EXCUSES! The description of a todo cannot be empty. Name the work. Try: todo read book
 ____________________________________________________________
 
 ____________________________________________________________
- Your list is empty. Get after it!
+ Your list is empty. Comfortable, aren't you? Add something hard.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -518,26 +522,27 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! A deadline needs a /by part you log! Try: deadline return book /by 2026-09-10
+ NO EXCUSES! A deadline needs a /by part. Without a date it's just a wish. Try: deadline return book /by 2026-09-10
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! The description of a deadline cannot be empty you log! Try: deadline return book /by 2026-09-10
+ NO EXCUSES! The description of a deadline cannot be empty. Name the work. Try: deadline return book /by 2026-09-10
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me when it is due after /by you log! Try: deadline return book /by 2026-09-10
+ NO EXCUSES! Tell me when it is due after /by. No date, no deadline. Try: deadline return book /by 2026-09-10
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [D][ ] return book (by: 2026-09-13)
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[D][ ] return book (by: 2026-09-13)
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -565,34 +570,35 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! An event needs a /from part. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+ NO EXCUSES! An event needs a /from part. When does the work start? Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! An event needs a /to part after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+ NO EXCUSES! An event needs a /to part after /from. When does it end? Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! The description of an event cannot be empty. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+ NO EXCUSES! The description of an event cannot be empty. Name the work. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me when the event starts after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+ NO EXCUSES! Tell me when the event starts after /from. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me when the event ends after /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11
+ NO EXCUSES! Tell me when the event ends after /to. Try: event project meeting /from 2026-09-10 /to 2026-09-11
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -621,43 +627,45 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task 2 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task 2 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! You typed nothing. Give me a command, e.g. list.
+ NO EXCUSES! You typed nothing. Silence won't get it done. Give me a command, e.g. list.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] run 10 miles
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] run 10 miles
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! The description of a todo cannot be empty you log! Try: todo read book
+ NO EXCUSES! The description of a todo cannot be empty. Name the work. Try: todo read book
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
  2.[T][X] run 10 miles
+ 1 of 2 done. You're not finished.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -686,49 +694,51 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [D][ ] return book (by: 2026-09-13)
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
- Now you have 3 tasks in the list.
+ You have 3 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
 ____________________________________________________________
 
 ____________________________________________________________
- Noted. I've removed this task:
+ Gone. I've taken this off your list:
    [T][ ] read book
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[D][ ] return book (by: 2026-09-13)
  2.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
+ 1 of 2 done. You're not finished.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [D][X] return book (by: 2026-09-13)
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[D][X] return book (by: 2026-09-13)
  2.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
+ All 2 done. Now go find something harder.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -758,44 +768,45 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! There's no task 1 in your list: your list is empty, so add a task first.
+ NO EXCUSES! There's no task 1 in your list: your list is empty, so add a task first.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! Tell me which task number to delete, e.g. delete 2.
+ NO EXCUSES! Which task? Give me the number, e.g. delete 2.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! "two" is not a task number you log! Use a whole number, e.g. delete 2.
+ NO EXCUSES! "two" is not a task number. Use a whole number, e.g. delete 2.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task 0 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task 0 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task 2 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task 2 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 ____________________________________________________________
- Noted. I've removed this task:
+ Gone. I've taken this off your list:
    [T][ ] read book
- Now you have 0 tasks in the list.
+ You have 0 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
- Your list is empty. Get after it!
+ Your list is empty. Comfortable, aren't you? Add something hard.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -822,35 +833,37 @@ BYE
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! You typed nothing. Give me a command, e.g. list.
+ NO EXCUSES! You typed nothing. Silence won't get it done. Give me a command, e.g. list.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [D][ ] return book (by: 2026-09-13)
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] read book
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][X] read book
  2.[D][ ] return book (by: 2026-09-13)
+ 1 of 2 done. You're not finished.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -881,50 +894,51 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task -1 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task -1 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task 0 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task 0 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! "99999999999999999999" is not a task number you log! Use a whole number, e.g. mark 2.
+ NO EXCUSES! "99999999999999999999" is not a task number. Use a whole number, e.g. mark 2.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] read book
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] read book
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! There's no task 2 in your list: pick a number from 1 to 1.
+ NO EXCUSES! There's no task 2 in your list: pick a number from 1 to 1.
 ____________________________________________________________
 
 ____________________________________________________________
- OK, I've marked this task as not done yet:
+ Not done after all? Then it's still waiting for you:
    [T][ ] read book
 ____________________________________________________________
 
 ____________________________________________________________
- OK, I've marked this task as not done yet:
+ Not done after all? Then it's still waiting for you:
    [T][ ] read book
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -950,32 +964,32 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [D][ ] return book (by: 2026-09-13)
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [E][ ] project meeting (from: 2026-09-14 to: 2026-09-15)
- Now you have 3 tasks in the list.
+ You have 3 tasks in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Nice! I've marked this task as done:
+ DONE. That's one less excuse:
    [T][X] read book
 ____________________________________________________________
 
 ____________________________________________________________
- Noted. I've removed this task:
+ Gone. I've taken this off your list:
    [D][ ] return book (by: 2026-09-13)
- Now you have 2 tasks in the list.
+ You have 2 tasks in the list.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -1013,23 +1027,25 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][X] read book
  2.[D][ ] return book (by: 2026-09-13)
  3.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
+ 2 of 3 done. You're not finished.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][X] read book
  2.[D][ ] return book (by: 2026-09-13)
  3.[E][X] project meeting (from: 2026-09-14 to: 2026-09-15)
+ 2 of 3 done. You're not finished.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] run 10 miles
- Now you have 4 tasks in the list.
+ You have 4 tasks in the list. Get after it.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -1061,13 +1077,13 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Your list is empty. Get after it!
+ Your list is empty. Comfortable, aren't you? Add something hard.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -1103,13 +1119,15 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -1147,15 +1165,17 @@ bye
  Warning: skipped 8 unreadable lines in data/tasks.txt. They will be dropped the next time the list changes.
 {{GREETING}}
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][X] read book
  2.[D][ ] return book (by: 2026-09-13)
+ 1 of 2 done. You're not finished.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][X] read book
  2.[D][ ] return book (by: 2026-09-13)
+ 1 of 2 done. You're not finished.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -1180,22 +1200,23 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! A task cannot contain the "|" character, since that is what I use to separate fields when saving. Drop it and try again.
+ NO EXCUSES! A task cannot contain the "|" character, since that is what I use to separate fields when saving. Drop it and try again.
 ____________________________________________________________
 
 ____________________________________________________________
- OOPS! A task cannot contain the "|" character, since that is what I use to separate fields when saving. Drop it and try again.
+ NO EXCUSES! A task cannot contain the "|" character, since that is what I use to separate fields when saving. Drop it and try again.
 ____________________________________________________________
 
 ____________________________________________________________
- Got it. I've added this task:
+ Logged. This one's on you now:
    [T][ ] read book
- Now you have 1 task in the list.
+ You have 1 task in the list. Get after it.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 {{FAREWELL}}
@@ -1229,12 +1250,13 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Here are the tasks in your list:
+ Here's what you signed up for:
  1.[T][ ] read book
+ 0 of 1 done. Stop planning and start doing.
 ____________________________________________________________
 
 ____________________________________________________________
- Here are the commands I understand:
+ Here are the commands I understand. Learn them, then use them:
  todo <description>
  Example: todo read book
  deadline <description> /by <yyyy-mm-dd>
@@ -1275,7 +1297,7 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- Here are the commands I understand:
+ Here are the commands I understand. Learn them, then use them:
  todo <description>
  Example: todo read book
  deadline <description> /by <yyyy-mm-dd>
@@ -1310,7 +1332,7 @@ bye
 ```text
 {{GREETING}}
 ____________________________________________________________
- OOPS! The help command takes no details. Try: help
+ NO EXCUSES! The help command takes no details. Try: help
 ____________________________________________________________
 
 {{FAREWELL}}
