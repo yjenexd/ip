@@ -33,7 +33,7 @@ Format: `help`
 
 - Capitalisation and surrounding spaces don't matter, so `HELP` works too.
 - Nothing may follow `help`. For example, `help deadline` is refused with
-  `OOPS! The help command takes no details. Try: help`.
+  `NO EXCUSES! The help command takes no details. Try: help`.
 - Asking for help doesn't change your task list.
 
 Example: `help`
@@ -42,7 +42,7 @@ In the text version, the help page appears in the conversation:
 
 ```
 ____________________________________________________________
- Here are the commands I understand:
+ Here are the commands I understand. Learn them, then use them:
  todo <description>
  Example: todo read book
  deadline <description> /by <yyyy-mm-dd>
@@ -59,7 +59,7 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
-In the app window, David Goggins replies `Opened the help window.` and the same page
+In the app window, David Goggins replies `The help window is open. Study it, then get back to work.` and the same page
 opens in a separate **David Goggins - Help** window:
 
 - You can keep typing commands while it is open.
