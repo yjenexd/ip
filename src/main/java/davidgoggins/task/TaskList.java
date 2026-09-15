@@ -69,6 +69,15 @@ public class TaskList {
     }
 
     /**
+     * Returns how many tasks in the list are done.
+     *
+     * @return a count between 0 and {@link #size()} inclusive
+     */
+    public int countDone() {
+        return (int) tasks.stream().filter(Task::isDone).count();
+    }
+
+    /**
      * Returns true if {@code taskNumber} refers to an existing task.
      *
      * @param taskNumber the 1-based number the user typed

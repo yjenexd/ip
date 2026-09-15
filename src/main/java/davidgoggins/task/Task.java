@@ -228,6 +228,15 @@ public abstract class Task {
         return description.toLowerCase().contains(keyword.toLowerCase());
     }
 
+    /**
+     * Returns true if the user has ticked this task off.
+     *
+     * @return true when the task is done
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
     /** Marks this task as done, used by the {@code mark} command. */
     public void markAsDone() {
         isDone = true;
