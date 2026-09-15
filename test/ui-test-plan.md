@@ -119,10 +119,13 @@ for each way its input can be wrong.
 | `todo` | TC3, TC9 | TC11 |
 | `deadline` | TC9 | TC12 |
 | `event` | TC9 | TC13 |
-| `mark` / `unmark` | TC4 | TC5, TC6, TC18 |
+| `mark` / `unmark` | TC4, TC33 | TC5, TC6, TC18 |
 | `delete` | TC15 | TC16 |
 | Parsing the command word | TC7, TC17 | TC10, TC17 |
 | Stored state after errors | TC14 | TC12, TC13, TC14, TC16 |
+| Loading and saving | TC19, TC20, TC21, TC22 | TC23, TC34 |
+| `find` | TC32 | TC32 |
+| Progress callouts under `list` | TC2, TC33 | — |
 | `help` | TC25, TC26 | TC27 |
 | Duplicate tasks | TC28 | TC28 |
 | Flags (`/by`, `/from`, `/to`) | TC29 | TC29 |
@@ -1584,4 +1587,191 @@ ____________________________________________________________
 ____________________________________________________________
 
 {{FAREWELL}}
+```
+
+### TC32: Finds tasks by keyword
+
+**Aim:** Checks that `find` matches any part of a description regardless of case, numbers the matches from 1 rather than by their place in the whole list, reports when nothing matches, and asks for a keyword when none is given.
+
+**Input:**
+
+```text
+todo read book
+todo run 10 miles
+deadline return book /by 2026-09-13
+find BOOK
+find mile
+find swim
+find
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] read book
+ You have 1 task in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] run 10 miles
+ You have 2 tasks in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [D][ ] return book (by: 2026-09-13)
+ You have 3 tasks in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Here are the matching tasks. Pick one and get it done:
+ 1.[T][ ] read book
+ 2.[D][ ] return book (by: 2026-09-13)
+____________________________________________________________
+
+____________________________________________________________
+ Here are the matching tasks. Pick one and get it done:
+ 1.[T][ ] run 10 miles
+____________________________________________________________
+
+____________________________________________________________
+ No tasks match "swim". Nothing to hide behind.
+____________________________________________________________
+
+____________________________________________________________
+ NO EXCUSES! Tell me what to search for. You can't chase what you can't name. Try: find book
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC33: Calls out progress at every stage
+
+**Aim:** Checks the progress line under `list` as tasks are ticked off and back: none done, some done, all done, and back to some done after an `unmark`.
+
+**Input:**
+
+```text
+todo read book
+todo run 10 miles
+list
+mark 1
+list
+mark 2
+list
+unmark 1
+list
+bye
+```
+
+**Expected output:**
+
+```text
+{{GREETING}}
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] read book
+ You have 1 task in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] run 10 miles
+ You have 2 tasks in the list. Get after it.
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][ ] read book
+ 2.[T][ ] run 10 miles
+ 0 of 2 done. Stop planning and start doing.
+____________________________________________________________
+
+____________________________________________________________
+ DONE. That's one less excuse:
+   [T][X] read book
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][X] read book
+ 2.[T][ ] run 10 miles
+ 1 of 2 done. You're not finished.
+____________________________________________________________
+
+____________________________________________________________
+ DONE. That's one less excuse:
+   [T][X] run 10 miles
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][X] read book
+ 2.[T][X] run 10 miles
+ All 2 done. Now go find something harder.
+____________________________________________________________
+
+____________________________________________________________
+ Not done after all? Then it's still waiting for you:
+   [T][ ] read book
+____________________________________________________________
+
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][ ] read book
+ 2.[T][X] run 10 miles
+ 1 of 2 done. You're not finished.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+### TC34: Rewrites a damaged save file with only its readable tasks
+
+**Aim:** Checks what happens after the warning in TC23: the next change saves only the tasks that could be read, in the standard format, while the warning tells the user the original was backed up first.
+
+**Saved file:**
+
+```text
+T|1|read book
+this line is damaged
+```
+
+**Input:**
+
+```text
+todo run 10 miles
+bye
+```
+
+**Expected output:**
+
+```text
+ Warning: skipped 1 unreadable line in data/tasks.txt. Your original file is backed up to data/tasks.txt.bak.
+{{GREETING}}
+____________________________________________________________
+ Here's what you signed up for:
+ 1.[T][X] read book
+ All 1 done. Now go find something harder.
+____________________________________________________________
+
+____________________________________________________________
+ Logged. This one's on you now:
+   [T][ ] run 10 miles
+ You have 2 tasks in the list. Get after it.
+____________________________________________________________
+
+{{FAREWELL}}
+```
+
+**Expected saved file:**
+
+```text
+T | 1 | read book
+T | 0 | run 10 miles
 ```

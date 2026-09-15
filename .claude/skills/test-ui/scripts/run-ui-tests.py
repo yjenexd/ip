@@ -305,7 +305,7 @@ def main():
     parser.add_argument("--plan", default="test/ui-test-plan.md",
                         help="path to the test plan (default: test/ui-test-plan.md)")
     parser.add_argument("--repo-root", default=".", help="repository root (default: .)")
-    parser.add_argument("--main-class", default="DavidGoggins",
+    parser.add_argument("--main-class", default="davidgoggins.DavidGoggins",
                         help="class whose main() starts the program")
     parser.add_argument("--only", nargs="*", metavar="ID",
                         help="run only the test cases with these ids")
