@@ -3,6 +3,9 @@ package davidgoggins.task;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 import davidgoggins.DavidGogginsException;
 
@@ -29,8 +32,18 @@ public abstract class Task {
      */
     public static final String SEPARATOR_CHAR = "|";
 
-    /** The one date format accepted for dated tasks, e.g. {@code 2019-10-15}. */
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    /**
+     * The one date format accepted for dated tasks, e.g. {@code 2026-10-15}.
+     *
+     * <p>Strict, so a day that does not exist, such as {@code 2026-02-30}, is refused.
+     * The default "smart" resolving would quietly turn it into February 28 instead.
+     * Strict resolving needs {@code uuuu} (a plain year) rather than {@code yyyy}.
+     */
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd")
+            .withResolverStyle(ResolverStyle.STRICT);
+
+    /** Matches text shaped like a date, so a well-formed but impossible date gets its own advice. */
+    private static final Pattern DATE_SHAPE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
 
     /** The task's text, kept exactly as the user typed it. */
     protected String description;
@@ -191,6 +204,10 @@ public abstract class Task {
         try {
             return LocalDate.parse(date, DATE_FORMATTER);
         } catch (DateTimeParseException e) {
+            if (DATE_SHAPE.matcher(date).matches()) {
+                throw new DavidGogginsException("\"" + date + "\" is not a real date. "
+                        + "Check the month and the day: that day does not exist.");
+            }
             throw new DavidGogginsException("I need the date as yyyy-mm-dd, not \"" + date
                     + "\". Try: " + example);
         }
@@ -215,6 +232,27 @@ public abstract class Task {
     }
 
     /**
+     * Returns true if this task records the same work as {@code other}.
+     *
+     * <p>Two tasks are duplicates when they are the same type with the same description,
+     * ignoring case and runs of spaces; subclasses add their dates to the comparison.
+     * Whether either is done does not matter: logging a finished task again is still a repeat.
+     *
+     * @param other the task to compare with
+     * @return true if the two tasks are duplicates
+     */
+    public boolean isDuplicateOf(Task other) {
+        return other != null
+                && getClass() == other.getClass()
+                && normalize(description).equals(normalize(other.description));
+    }
+
+    /** Returns the description lower-cased with runs of spaces squeezed to one. */
+    private static String normalize(String text) {
+        return text.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /**
      * Returns true if this task's description contains the given keyword.
      *
      * <p>Matching ignores case, so {@code find book} also finds a task the user
@@ -225,7 +263,17 @@ public abstract class Task {
      * @return true if the description contains the keyword
      */
     public boolean matches(String keyword) {
-        return description.toLowerCase().contains(keyword.toLowerCase());
+        // Locale.ROOT, so matching does not depend on the machine's language setting.
+        return description.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Returns true if the user has ticked this task off.
+     *
+     * @return true when the task is done
+     */
+    public boolean isDone() {
+        return isDone;
     }
 
     /** Marks this task as done, used by the {@code mark} command. */

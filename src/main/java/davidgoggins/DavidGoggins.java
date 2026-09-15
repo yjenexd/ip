@@ -27,6 +27,18 @@ public class DavidGoggins {
     /** The command that shows how to use every other command. */
     private static final String HELP_COMMAND = "help";
 
+    /** The command that shows every task. */
+    private static final String LIST_COMMAND = "list";
+
+    /**
+     * What the user is told when a bug, rather than their input, stops a command.
+     *
+     * <p>Kept vague on purpose: the details go to the console for whoever fixes it, and
+     * would only confuse the user, who can do nothing about them.
+     */
+    private static final String UNEXPECTED_ERROR_MESSAGE = "Something broke on my end. That one's on me,"
+            + " not you. Try again, and if it keeps happening, restart me.";
+
     /**
      * The help page, one entry per line, without the leading space the text UI adds.
      *
@@ -35,7 +47,7 @@ public class DavidGoggins {
      * and the error messages always suggest the same syntax.
      */
     private static final String[] HELP_LINES = {
-        "Here are the commands I understand:",
+        "Here are the commands I understand. Learn them, then use them:",
         "todo <description>",
         "Example: " + Parser.TODO_EXAMPLE,
         "deadline <description> /by <yyyy-mm-dd>",
@@ -60,6 +72,12 @@ public class DavidGoggins {
     /** The tasks the user has added so far. */
     private final TaskList tasks;
 
+    /** Whether the reply last returned by {@link #getResponse} reported an error. */
+    private boolean isLastResponseError;
+
+    /** Warnings raised while loading the save file, one per line, or empty if there were none. */
+    private final String loadWarnings;
+
     /**
      * Builds a chatbot that keeps its tasks in the given file.
      *
@@ -74,7 +92,10 @@ public class DavidGoggins {
         // The path is passed in rather than fixed inside Storage, so the one decision
         // about where tasks live is made in the class that assembles the program.
         storage = new Storage(filePath, ui);
+        // Captured rather than printed, so the GUI can show them as well as the text UI.
+        ui.startCapture();
         tasks = new TaskList(storage);
+        loadWarnings = ui.takeCaptured();
     }
 
     /**
@@ -82,6 +103,7 @@ public class DavidGoggins {
      * carries out commands until they type {@code bye} or the input runs out.
      */
     public void run() {
+        ui.showCapturedWarnings(loadWarnings);
         ui.showWelcome();
 
         // The tasks were already read from disk by the TaskList built in the
@@ -108,6 +130,9 @@ public class DavidGoggins {
                     // Every expected problem ends up here, so the error format is
                     // defined once instead of in each command method.
                     ui.showError(e.getMessage());
+                } catch (RuntimeException e) {
+                    // A bug should not end the session and lose the user's place.
+                    reportUnexpected(e);
                 }
             }
         } finally {
@@ -142,21 +167,58 @@ public class DavidGoggins {
     public String getResponse(String userInput) {
         ui.startCapture();
         String trimmedInput = userInput.trim();
+        isLastResponseError = false;
 
         if (isExitCommand(trimmedInput)) {
             ui.show(ui.getFarewell());
         } else if (isHelpCommand(trimmedInput)) {
             // The GUI shows the page in its own window, so the chat only confirms it.
-            ui.show("Opened the help window.");
+            ui.show("The help window is open. Study it, then get back to work.");
         } else {
             try {
                 handleCommand(trimmedInput);
             } catch (DavidGogginsException e) {
+                isLastResponseError = true;
                 ui.showError(e.getMessage());
+            } catch (RuntimeException e) {
+                // Caught here so a bug shows as a reply instead of freezing the window.
+                isLastResponseError = true;
+                reportUnexpected(e);
             }
         }
 
         return ui.takeCaptured();
+    }
+
+    /**
+     * Tells the user a command failed because of a bug, and logs the details.
+     *
+     * @param e the unexpected exception
+     */
+    private void reportUnexpected(RuntimeException e) {
+        // Standard error, so the stack trace reaches a developer without entering the reply.
+        e.printStackTrace();
+        ui.showError(UNEXPECTED_ERROR_MESSAGE);
+    }
+
+    /**
+     * Returns the warnings raised while loading the save file, for the GUI to show.
+     *
+     * @return the warnings, one per line, or an empty string if loading went smoothly
+     */
+    public String getLoadWarnings() {
+        return loadWarnings;
+    }
+
+    /**
+     * Returns true if the reply last returned by {@link #getResponse} was an error.
+     *
+     * <p>Lets the GUI style an error differently without parsing the reply's words.
+     *
+     * @return true if the last command could not be carried out
+     */
+    public boolean isLastResponseError() {
+        return isLastResponseError;
     }
 
     /**
@@ -240,8 +302,14 @@ public class DavidGoggins {
         String argument = Parser.parseArgument(userInput);
 
         switch (command) {
-            case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
-            case "list" -> showTasks();
+            case "" -> throw new DavidGogginsException(
+                    "You typed nothing. Silence won't get it done. Give me a command, e.g. list.");
+            case LIST_COMMAND -> {
+                requireNoDetails(argument, LIST_COMMAND);
+                showTasks();
+            }
+            // A bare "bye" never gets here: it ends the conversation before parsing.
+            case EXIT_COMMAND -> requireNoDetails(argument, EXIT_COMMAND);
             case "mark" -> setDone(argument, true);
             case "unmark" -> setDone(argument, false);
             case "todo" -> addTask(Parser.parseTodo(Parser.rejectSeparator(argument)));
@@ -251,7 +319,7 @@ public class DavidGoggins {
             case "find" -> findTasks(Parser.parseKeyword(argument));
             case HELP_COMMAND -> showHelp(argument);
             default -> throw new DavidGogginsException(
-                    "What are you saying! I don't know the command \"" + command + "\". "
+                    "I don't know the command \"" + command + "\". Stop guessing. "
                             + "Type help to see the commands I understand.");
         }
     }
@@ -263,9 +331,7 @@ public class DavidGoggins {
      * @throws DavidGogginsException if anything was typed after "help"
      */
     private void showHelp(String argument) throws DavidGogginsException {
-        if (!argument.isEmpty()) {
-            throw new DavidGogginsException("The help command takes no details. Try: help");
-        }
+        requireNoDetails(argument, HELP_COMMAND);
         // The leading space matches every other reply in the text UI.
         String[] indentedLines = Arrays.stream(HELP_LINES)
                 .map(line -> " " + line)
@@ -273,13 +339,48 @@ public class DavidGoggins {
         ui.show(indentedLines);
     }
 
-    /** Prints every task, numbered from 1. */
+    /**
+     * Refuses details typed after a command that takes none.
+     *
+     * <p>Silently ignoring them would hide a mistake: {@code list done} looks like it
+     * should filter the list, so the user is told it does not rather than left guessing.
+     *
+     * @param argument    everything typed after the command word
+     * @param commandName the command, named in the advice
+     * @throws DavidGogginsException if the argument is not empty
+     */
+    private static void requireNoDetails(String argument, String commandName) throws DavidGogginsException {
+        if (!argument.isEmpty()) {
+            throw new DavidGogginsException("The " + commandName + " command takes no details. Try: "
+                    + commandName);
+        }
+    }
+
+    /** Prints every task, numbered from 1, followed by how far the user has got. */
     private void showTasks() {
         if (tasks.size() == 0) {
-            ui.show(" Your list is empty. Get after it!");
+            ui.show(" Your list is empty. Comfortable, aren't you? Add something hard.");
             return;
         }
-        ui.show(" Here are the tasks in your list:", tasks.toString());
+        ui.show(" Here's what you signed up for:", tasks.toString(), " " + formatProgress());
+    }
+
+    /**
+     * Returns a one-line progress callout for the list, in Goggins' voice.
+     *
+     * <p>Split three ways because the push is different at each stage: nothing done
+     * needs a start, some done needs to keep going, and all done needs a new challenge.
+     */
+    private String formatProgress() {
+        int doneCount = tasks.countDone();
+        int total = tasks.size();
+        if (doneCount == 0) {
+            return "0 of " + total + " done. Stop planning and start doing.";
+        }
+        if (doneCount < total) {
+            return doneCount + " of " + total + " done. You're not finished.";
+        }
+        return "All " + total + " done. Now go find something harder.";
     }
 
     /**
@@ -294,10 +395,10 @@ public class DavidGoggins {
     private void findTasks(String keyword) {
         List<Task> matches = tasks.find(keyword);
         if (matches.isEmpty()) {
-            ui.show(" No tasks match \"" + keyword + "\". Nothing hiding from you!");
+            ui.show(" No tasks match \"" + keyword + "\". Nothing to hide behind.");
             return;
         }
-        ui.show(" Here are the matching tasks in your list:", TaskList.format(matches));
+        ui.show(" Here are the matching tasks. Pick one and get it done:", TaskList.format(matches));
     }
 
     /**
@@ -311,14 +412,14 @@ public class DavidGoggins {
         String commandName = isDone ? "mark" : "unmark";
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me which task number NOW!, e.g. " + commandName + " 2.");
+                    "Which task? Give me the number, e.g. " + commandName + " 2.");
         }
 
         int taskNumber = parseExistingTaskNumber(argument, commandName);
         Task task = isDone ? tasks.mark(taskNumber) : tasks.unmark(taskNumber);
         String message = isDone
-                ? " Nice! I've marked this task as done:"
-                : " OK, I've marked this task as not done yet:";
+                ? " DONE. That's one less excuse:"
+                : " Not done after all? Then it's still waiting for you:";
         ui.show(message, "   " + task);
     }
 
@@ -338,15 +439,22 @@ public class DavidGoggins {
      * Adds a task to the list and confirms it, including the new list size.
      *
      * @param task the task to add
+     * @throws DavidGogginsException if the same task is already in the list
      */
-    private void addTask(Task task) {
+    private void addTask(Task task) throws DavidGogginsException {
+        int duplicateNumber = tasks.findDuplicateNumber(task);
+        if (duplicateNumber > 0) {
+            throw new DavidGogginsException("You already logged that as task " + duplicateNumber + ": "
+                    + tasks.get(duplicateNumber) + ". Writing it down twice won't get it done twice.");
+        }
+
         int sizeBefore = tasks.size();
         tasks.add(task);
         // The confirmation below quotes the new size, so it must reflect this one addition.
         assert tasks.size() == sizeBefore + 1 : "adding a task should grow the list by one";
-        ui.show(" Got it. I've added this task:",
+        ui.show(" Logged. This one's on you now:",
                 "   " + task,
-                " Now you have " + formatTaskCount() + " in the list.");
+                " You have " + formatTaskCount() + " in the list. Get after it.");
     }
 
     /**
@@ -358,14 +466,14 @@ public class DavidGoggins {
     private void deleteTask(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me which task number to delete, e.g. delete 2.");
+                    "Which task? Give me the number, e.g. delete 2.");
         }
 
         int taskNumber = parseExistingTaskNumber(argument, "delete");
         Task removedTask = tasks.remove(taskNumber);
-        ui.show(" Noted. I've removed this task:",
+        ui.show(" Gone. I've taken this off your list:",
                 "   " + removedTask,
-                " Now you have " + formatTaskCount() + " in the list.");
+                " You have " + formatTaskCount() + " in the list.");
     }
 
     /**

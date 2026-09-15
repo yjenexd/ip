@@ -12,7 +12,7 @@ import davidgoggins.DavidGogginsException;
  */
 public class Event extends Task {
     /** A correct event command, suggested when a date cannot be read. */
-    private static final String EXAMPLE = "event project meeting /from 2019-10-15 /to 2019-10-16";
+    private static final String EXAMPLE = "event project meeting /from 2026-09-10 /to 2026-09-11";
 
     /** When the event starts. */
     private final LocalDate from;
@@ -52,5 +52,20 @@ public class Event extends Task {
         // still holds; saving a backwards event would make the file unloadable.
         assert !to.isBefore(from) : "event ends before it starts";
         return toSaveFormat("E", from.toString(), to.toString());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>An event is only a duplicate if both of its dates also match.
+     */
+    @Override
+    public boolean isDuplicateOf(Task other) {
+        // super checks the class first, so the cast below is always safe.
+        if (!super.isDuplicateOf(other)) {
+            return false;
+        }
+        Event otherEvent = (Event) other;
+        return from.equals(otherEvent.from) && to.equals(otherEvent.to);
     }
 }
