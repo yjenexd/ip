@@ -4,18 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import davidgoggins.DavidGogginsException;
 import davidgoggins.task.Deadline;
 
 /**
- * Tests {@link Parser#parseDeadline(String)}.
+ * Tests {@link Parser}, which turns what the user typed into commands and tasks.
  *
- * <p>That method is a good fit for unit testing: it is static, it reads nothing from
+ * <p>The parser is a good fit for unit testing: it is static, it reads nothing from
  * disk and prints nothing, so a test only has to hand it a string and look at what
- * comes back. The result is checked through {@code toString()} and
- * {@code toSaveFormat()}, since {@link Deadline} exposes no getters.
+ * comes back. Built tasks are checked through {@code toString()} and
+ * {@code toSaveFormat()}, since the task classes expose no getters for their fields.
  */
 public class ParserTest {
 
@@ -162,5 +167,142 @@ public class ParserTest {
     private static Deadline markedDone(Deadline deadline) {
         deadline.markAsDone();
         return deadline;
+    }
+
+    @Test
+    public void parseCommand_mixedCaseWithArgument_commandWordLowerCased() {
+        assertEquals("mark", Parser.parseCommand("MaRk 2"));
+    }
+
+    @Test
+    public void parseCommand_emptyInput_emptyStringReturned() {
+        assertEquals("", Parser.parseCommand(""));
+    }
+
+    /** Runs of spaces after the command word go, but spaces inside the argument stay. */
+    @Test
+    public void parseArgument_severalSpacesAfterCommand_innerSpacesKept() {
+        assertEquals("read  book", Parser.parseArgument("todo   read  book"));
+    }
+
+    @Test
+    public void parseArgument_commandOnly_emptyStringReturned() {
+        assertEquals("", Parser.parseArgument("list"));
+    }
+
+    @Test
+    public void rejectSeparator_noSeparator_argumentReturned() throws DavidGogginsException {
+        assertEquals("read book", Parser.rejectSeparator("read book"));
+    }
+
+    @Test
+    public void rejectSeparator_separatorInArgument_exceptionThrown() {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                Parser.rejectSeparator("read book | now"));
+        assertTrue(e.getMessage().contains("\"|\""), e.getMessage());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"7, 7", "+3, 3", "-1, -1", "007, 7"})
+    public void parseTaskNumber_wholeNumber_numberReturned(String argument, int expected)
+            throws DavidGogginsException {
+        assertEquals(expected, Parser.parseTaskNumber(argument, "mark"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"two", "2.5", "1a", "#1"})
+    public void parseTaskNumber_notAWholeNumber_exceptionThrown(String argument) {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                Parser.parseTaskNumber(argument, "delete"));
+        assertTrue(e.getMessage().contains("is not a task number"), e.getMessage());
+        assertTrue(e.getMessage().contains("delete 2"), "advice should name the command used");
+    }
+
+    @Test
+    public void parseTaskNumber_severalNumbers_oneAtATimeMessage() {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                Parser.parseTaskNumber("1 2", "mark"));
+        assertTrue(e.getMessage().contains("One task at a time"), e.getMessage());
+    }
+
+    /** Too big for an int, but still a number, so "not a number" would be wrong advice. */
+    @Test
+    public void parseTaskNumber_numberTooLargeForInt_noSuchTaskMessage() {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                Parser.parseTaskNumber("99999999999", "mark"));
+        assertTrue(e.getMessage().contains("There's no task 99999999999"), e.getMessage());
+    }
+
+    @Test
+    public void parseTodo_description_todoCreated() throws DavidGogginsException {
+        assertEquals("[T][ ] read book", Parser.parseTodo("read book").toString());
+    }
+
+    @Test
+    public void parseTodo_emptyArgument_exceptionThrown() {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () -> Parser.parseTodo(""));
+        assertTrue(e.getMessage().contains("description of a todo cannot be empty"), e.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"read book /by 2026-09-10", "run /from 2026-01-01", "rest /to 2026-01-02"})
+    public void parseTodo_dateFlag_exceptionThrown(String argument) {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () -> Parser.parseTodo(argument));
+        assertTrue(e.getMessage().contains("A todo has no dates"), e.getMessage());
+    }
+
+    /** Slashes inside a path are not flags, so a todo about files is still accepted. */
+    @Test
+    public void parseTodo_pathInDescription_todoCreated() throws DavidGogginsException {
+        assertEquals("[T][ ] fix /etc/hosts", Parser.parseTodo("fix /etc/hosts").toString());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"return book /from 2026-09-10", "return book /at 2026-09-10 /by 2026-09-11"})
+    public void parseDeadline_flagNotForDeadlines_exceptionThrown(String argument) {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                Parser.parseDeadline(argument));
+        assertTrue(e.getMessage().contains("A deadline does not take a"), e.getMessage());
+    }
+
+    @Test
+    public void parseEvent_descriptionAndDates_eventCreated() throws DavidGogginsException {
+        assertEquals("[E][ ] project meeting (from: 2026-09-10 to: 2026-09-11)",
+                Parser.parseEvent("project meeting /from 2026-09-10 /to 2026-09-11").toString());
+    }
+
+    /** Each malformed event must be refused with advice that names what is actually wrong. */
+    @ParameterizedTest
+    @CsvSource(delimiter = ';', value = {
+        "project meeting; needs a /from part",
+        "project meeting /from 2026-09-10; needs a /to part",
+        "/from 2026-09-10 /to 2026-09-11; description of an event cannot be empty",
+        "meeting /from /to 2026-09-11; starts after /from",
+        "meeting /from 2026-09-10 /to; ends after /to",
+        "meeting /from 2026-09-10 /from 2026-09-11 /to 2026-09-12; /from more than once",
+        "meeting /from 2026-09-10 /to 2026-09-11 /to 2026-09-12; /to more than once",
+        "meeting /to 2026-09-11 /from 2026-09-10; Put /from before /to",
+        "meeting /from 2026-09-10 /to 2026-09-11 /by 2026-09-12; does not take a /by part",
+        "meeting /from 2026-09-12 /to 2026-09-11; cannot end before it starts",
+        "meeting /from 2026-09-31 /to 2026-10-01; not a real date",
+    })
+    public void parseEvent_malformedInput_exceptionNamesProblem(String argument, String expectedAdvice) {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () -> Parser.parseEvent(argument));
+        assertTrue(e.getMessage().contains(expectedAdvice), e.getMessage());
+    }
+
+    /**
+     * In a Turkish locale, lower-casing "I" gives a dotless "ı", so a command typed in
+     * capitals would not be recognised if the machine's language were used.
+     */
+    @Test
+    public void parseCommand_upperCaseIOnTurkishMachine_commandRecognised() {
+        Locale original = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+        try {
+            assertEquals("list", Parser.parseCommand("LIST"));
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 }

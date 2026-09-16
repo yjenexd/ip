@@ -48,7 +48,7 @@ Useful options:
 | --- | --- |
 | `--only TC3 TC5` | Run just those test cases, by id. |
 | `--plan <path>` | Use a different test plan file. |
-| `--main-class <name>` | Start a class other than `DavidGoggins`. |
+| `--main-class <name>` | Start a class other than `davidgoggins.DavidGoggins`. |
 | `--timeout <seconds>` | Change the per-case time limit (default 20). |
 
 The runner compiles every file under `src/main/java` into a temporary directory,

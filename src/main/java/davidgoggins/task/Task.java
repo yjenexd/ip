@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import davidgoggins.DavidGogginsException;
@@ -248,7 +249,7 @@ public abstract class Task {
 
     /** Returns the description lower-cased with runs of spaces squeezed to one. */
     private static String normalize(String text) {
-        return text.trim().replaceAll("\\s+", " ").toLowerCase();
+        return text.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -262,7 +263,8 @@ public abstract class Task {
      * @return true if the description contains the keyword
      */
     public boolean matches(String keyword) {
-        return description.toLowerCase().contains(keyword.toLowerCase());
+        // Locale.ROOT, so matching does not depend on the machine's language setting.
+        return description.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 
     /**

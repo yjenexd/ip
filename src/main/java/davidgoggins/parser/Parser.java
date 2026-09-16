@@ -2,6 +2,7 @@ package davidgoggins.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +63,9 @@ public class Parser {
      * @return the command word, or an empty string if the line was empty
      */
     public static String parseCommand(String userInput) {
-        return split(userInput)[0].toLowerCase();
+        // Locale.ROOT, because the machine's own locale can change the result: in Turkish,
+        // "LIST".toLowerCase() is "lıst" with a dotless i, which is not a command.
+        return split(userInput)[0].toLowerCase(Locale.ROOT);
     }
 
     /**
