@@ -1,5 +1,10 @@
 package davidgoggins.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import davidgoggins.DavidGogginsException;
 import davidgoggins.task.Deadline;
 import davidgoggins.task.Event;
@@ -23,6 +28,25 @@ public class Parser {
 
     /** A correct event command, suggested when an event cannot be read, and shown by help. */
     public static final String EVENT_EXAMPLE = "event project meeting /from 2026-09-10 /to 2026-09-11";
+
+    /** The flag that starts a deadline's due date. */
+    private static final String FLAG_BY = "/by";
+
+    /** The flag that starts an event's start date. */
+    private static final String FLAG_FROM = "/from";
+
+    /** The flag that starts an event's end date. */
+    private static final String FLAG_TO = "/to";
+
+    /**
+     * Matches a word that looks like a flag: a slash and letters standing on their own,
+     * such as {@code /at}. A path such as {@code /etc/hosts} does not match, since the
+     * first part is followed by another slash rather than a space.
+     */
+    private static final Pattern FLAG_WORD = Pattern.compile("(?<=^|\\s)/[A-Za-z]+(?=\\s|$)");
+
+    /** Matches a whole number, possibly signed, however many digits it has. */
+    private static final Pattern WHOLE_NUMBER = Pattern.compile("[+-]?\\d+");
 
     // Every method below is static because parsing needs no state: the same input
     // always gives the same result, so there is nothing for an instance to remember.
@@ -99,13 +123,23 @@ public class Parser {
      * @param commandName the command it was typed for, used in the error message so the
      *                    advice names the command the user actually used
      * @return the number the user typed, which may not refer to an existing task
-     * @throws DavidGogginsException if the argument is not a whole number
+     * @throws DavidGogginsException if the argument is not a single whole number that fits in an int
      */
     public static int parseTaskNumber(String argument, String commandName) throws DavidGogginsException {
+        if (argument.split("\\s+").length > 1) {
+            throw new DavidGogginsException("One task at a time. Give me a single number, e.g. "
+                    + commandName + " 2.");
+        }
         try {
             return Integer.parseInt(argument);
         } catch (NumberFormatException e) {
-            // The user typed something like "mark two" or "mark 2 3".
+            if (WHOLE_NUMBER.matcher(argument).matches()) {
+                // A whole number that does not fit in an int cannot be a task number either,
+                // but "not a number" would be the wrong advice for it.
+                throw new DavidGogginsException("There's no task " + argument
+                        + " in your list. That number is way past the end of it.");
+            }
+            // The user typed something like "mark two".
             throw new DavidGogginsException(
                     "\"" + argument + "\" is not a task number. Use a whole number, e.g. "
                             + commandName + " 2.");
@@ -135,12 +169,20 @@ public class Parser {
      *
      * @param argument everything the user typed after the word "todo"
      * @return a new todo, not yet done
-     * @throws DavidGogginsException if the description is empty
+     * @throws DavidGogginsException if the description is empty or contains a date flag
      */
     public static Todo parseTodo(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
                     "The description of a todo cannot be empty. Name the work. Try: " + TODO_EXAMPLE);
+        }
+        // Only the date flags are refused: a todo's description is free text, so some
+        // other slash-word in it is more likely meant than mistyped.
+        for (String flag : findFlags(argument)) {
+            if (flag.equals(FLAG_BY) || flag.equals(FLAG_FROM) || flag.equals(FLAG_TO)) {
+                throw new DavidGogginsException("A todo has no dates, so it takes no " + flag
+                        + " part. Use deadline or event for a dated task. Try: " + TODO_EXAMPLE);
+            }
         }
         return new Todo(argument);
     }
@@ -150,9 +192,18 @@ public class Parser {
      *
      * @param argument everything the user typed after the word "deadline"
      * @return a new deadline, not yet done
-     * @throws DavidGogginsException if the description or the due time is missing
+     * @throws DavidGogginsException if the description or the due time is missing, or a
+     *                               flag is repeated or does not belong to a deadline
      */
     public static Deadline parseDeadline(String argument) throws DavidGogginsException {
+        rejectRepeatedFlag(argument, FLAG_BY, "A deadline has one due date", DEADLINE_EXAMPLE);
+        for (String flag : findFlags(argument)) {
+            if (!flag.equals(FLAG_BY)) {
+                throw new DavidGogginsException("A deadline does not take a " + flag
+                        + " part, only /by. Try: " + DEADLINE_EXAMPLE);
+            }
+        }
+
         // Splitting on the bare keyword (rather than " /by ") lets us spot a
         // "/by" with nothing after it instead of silently failing to split.
         String[] parts = argument.split("/by", 2);
@@ -179,9 +230,25 @@ public class Parser {
      *
      * @param argument everything the user typed after the word "event"
      * @return a new event, not yet done
-     * @throws DavidGogginsException if the description, the start or the end is missing
+     * @throws DavidGogginsException if the description, the start or the end is missing,
+     *                               or a flag is repeated, out of order or does not belong
      */
     public static Event parseEvent(String argument) throws DavidGogginsException {
+        rejectRepeatedFlag(argument, FLAG_FROM, "An event starts once", EVENT_EXAMPLE);
+        rejectRepeatedFlag(argument, FLAG_TO, "An event ends once", EVENT_EXAMPLE);
+        for (String flag : findFlags(argument)) {
+            if (!flag.equals(FLAG_FROM) && !flag.equals(FLAG_TO)) {
+                throw new DavidGogginsException("An event does not take a " + flag
+                        + " part, only /from and /to. Try: " + EVENT_EXAMPLE);
+            }
+        }
+        int fromIndex = argument.indexOf(FLAG_FROM);
+        int toIndex = argument.indexOf(FLAG_TO);
+        if (fromIndex >= 0 && toIndex >= 0 && toIndex < fromIndex) {
+            throw new DavidGogginsException("Put /from before /to: start first, then finish. Try: "
+                    + EVENT_EXAMPLE);
+        }
+
         String[] fromParts = argument.split("/from", 2);
         if (fromParts.length < 2) {
             throw new DavidGogginsException(
@@ -210,5 +277,42 @@ public class Parser {
                     "Tell me when the event ends after /to. Try: " + EVENT_EXAMPLE);
         }
         return new Event(description, from, to);
+    }
+
+    /**
+     * Returns every word in the argument that looks like a flag, in the order typed.
+     *
+     * @param argument everything the user typed after the command word
+     * @return the flag-like words, such as {@code /by} or {@code /at}, which may be empty
+     */
+    private static List<String> findFlags(String argument) {
+        List<String> flags = new ArrayList<>();
+        Matcher matcher = FLAG_WORD.matcher(argument);
+        while (matcher.find()) {
+            flags.add(matcher.group());
+        }
+        return flags;
+    }
+
+    /**
+     * Refuses an argument that contains the given flag more than once.
+     *
+     * <p>Without this, the second copy would be swallowed into a date and reported as a
+     * badly written date, which sends the user looking in the wrong place.
+     *
+     * @param argument the text to check
+     * @param flag     the flag that may appear at most once, e.g. {@code /by}
+     * @param reason   why only one is allowed, e.g. "A deadline has one due date"
+     * @param example  a correct command to suggest
+     * @throws DavidGogginsException if the flag appears more than once
+     */
+    private static void rejectRepeatedFlag(String argument, String flag, String reason, String example)
+            throws DavidGogginsException {
+        // Counted the same way the split finds it, as plain text, so the two always agree.
+        int firstIndex = argument.indexOf(flag);
+        if (firstIndex >= 0 && argument.indexOf(flag, firstIndex + flag.length()) >= 0) {
+            throw new DavidGogginsException("You gave " + flag + " more than once. " + reason
+                    + ". Try: " + example);
+        }
     }
 }

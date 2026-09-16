@@ -63,6 +63,13 @@ public class MainWindow extends AnchorPane {
         this.davidGoggins = davidGoggins;
         addBotDialog(davidGoggins.getGreeting());
 
+        // Trouble with the save file is otherwise only printed to a console the GUI user
+        // never sees, which would leave them wondering where their tasks went.
+        String loadWarnings = davidGoggins.getLoadWarnings();
+        if (!loadWarnings.isEmpty()) {
+            dialogContainer.getChildren().add(DialogBox.getWarningDialog(loadWarnings, botImage));
+        }
+
         // A returning user is shown the list restored from the save file, matching
         // what the text UI does at start-up.
         String restored = davidGoggins.getRestoredTasks();

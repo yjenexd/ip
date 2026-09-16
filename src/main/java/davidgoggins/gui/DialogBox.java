@@ -31,6 +31,9 @@ import davidgoggins.ui.Ui;
  */
 public class DialogBox extends HBox {
 
+    /** The tag shown above a warning, which is less urgent than an error. */
+    private static final String WARNING_LABEL = "HEADS UP";
+
     /** The widest a user's chip may grow, as a fraction of the conversation's width. */
     private static final double USER_BUBBLE_WIDTH_RATIO = 0.8;
 
@@ -128,10 +131,37 @@ public class DialogBox extends HBox {
      */
     public static DialogBox getErrorDialog(String text, Image image) {
         DialogBox box = getBotDialog(text, image);
-        box.bubble.getStyleClass().add("error-bubble");
-        box.bubble.getChildren().add(0, createLabel(Ui.ERROR_LABEL, "error-tag"));
+        box.addTag(Ui.ERROR_LABEL, "error-bubble", "error-tag");
         box.shake();
         return box;
+    }
+
+    /**
+     * Returns a highlighted card for a problem the chatbot worked around.
+     *
+     * <p>Used for trouble with the save file, which the user did not cause but should
+     * know about. It is marked out like an error, in yellow and without the shake.
+     *
+     * @param text the warning, one or more lines
+     * @param image the chatbot's picture
+     * @return the dialog box to add to the conversation
+     */
+    public static DialogBox getWarningDialog(String text, Image image) {
+        DialogBox box = getBotDialog(text, image);
+        box.addTag(WARNING_LABEL, "warning-bubble", "warning-tag");
+        return box;
+    }
+
+    /**
+     * Restyles the bubble and puts a tag above its text.
+     *
+     * @param tagText the words on the tag
+     * @param bubbleStyleClass the style class that recolors the bubble
+     * @param tagStyleClass the style class of the tag
+     */
+    private void addTag(String tagText, String bubbleStyleClass, String tagStyleClass) {
+        bubble.getStyleClass().add(bubbleStyleClass);
+        bubble.getChildren().add(0, createLabel(tagText, tagStyleClass));
     }
 
     /**
