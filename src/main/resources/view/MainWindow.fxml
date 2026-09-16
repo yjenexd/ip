@@ -8,8 +8,9 @@
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="620.0" prefWidth="440.0" xmlns="http://javafx.com/javafx/17"
+<!-- Only a preferred size is given, so the window starts at this size but the user can
+     resize it freely; every child below is anchored to the edges and follows along. -->
+<AnchorPane prefHeight="620.0" prefWidth="440.0" xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="davidgoggins.gui.MainWindow">
     <children>
         <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" hvalue="1.0" vbarPolicy="AS_NEEDED"
@@ -17,7 +18,7 @@
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                     AnchorPane.bottomAnchor="57.0">
             <content>
-                <VBox fx:id="dialogContainer" />
+                <VBox fx:id="dialogContainer" styleClass="dialog-container" />
             </content>
         </ScrollPane>
 

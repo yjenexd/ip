@@ -17,12 +17,15 @@ public class Ui {
     private static final String DIVIDER = "_".repeat(60);
 
     /**
-     * The prefix put in front of every error message shown to the user.
+     * The label that marks a message as an error.
      *
-     * <p>Goggins does not say "oops": a mistake is something to own and fix, so the
-     * prefix tells the user exactly that before the advice on how to fix it.
+     * <p>Goggins does not say "oops": a mistake is something to own and fix. Public so
+     * the GUI can show it as a tag on its error cards instead of inside the text.
      */
-    private static final String ERROR_PREFIX = " NO EXCUSES! ";
+    public static final String ERROR_LABEL = "NO EXCUSES!";
+
+    /** The prefix put in front of every error message in the text UI. */
+    private static final String ERROR_PREFIX = " " + ERROR_LABEL + " ";
 
     /** The prefix put in front of every housekeeping warning shown to the user. */
     private static final String WARNING_PREFIX = " Warning: ";
@@ -182,9 +185,16 @@ public class Ui {
      * <p>Kept separate from {@link #show} so that the error wording is decided here
      * once, instead of every caller having to remember the prefix.
      *
+     * <p>While capturing for the GUI the prefix is left out, because the GUI marks an
+     * error with its own tag and colors rather than with words.
+     *
      * @param message the explanation to show, without the prefix
      */
     public void showError(String message) {
+        if (captured != null) {
+            capture(message);
+            return;
+        }
         show(ERROR_PREFIX + message);
     }
 
