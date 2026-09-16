@@ -6,7 +6,7 @@ import java.util.Scanner;
  * Deals with everything the user sees and types.
  *
  * <p>All console reading and writing is gathered here, so the divider width, the banner
- * and the "OOPS!" error prefix are written once and the look of the chatbot changes in
+ * and the "NO EXCUSES!" error prefix are written once and the look of the chatbot changes in
  * this class alone. Input belongs here too: a command and its reply are one exchange.
  */
 public class Ui {
@@ -16,8 +16,13 @@ public class Ui {
     /** The horizontal rule printed above and below every reply block. */
     private static final String DIVIDER = "_".repeat(60);
 
-    /** The prefix put in front of every error message shown to the user. */
-    private static final String ERROR_PREFIX = " OOPS! ";
+    /**
+     * The prefix put in front of every error message shown to the user.
+     *
+     * <p>Goggins does not say "oops": a mistake is something to own and fix, so the
+     * prefix tells the user exactly that before the advice on how to fix it.
+     */
+    private static final String ERROR_PREFIX = " NO EXCUSES! ";
 
     /** The prefix put in front of every housekeeping warning shown to the user. */
     private static final String WARNING_PREFIX = " Warning: ";
@@ -157,8 +162,8 @@ public class Ui {
      * @return the greeting lines, suitable for either interface
      */
     public String getGreeting() {
-        return "Hello! I'm " + NAME + "." + System.lineSeparator()
-                + "What can I do for you?" + System.lineSeparator()
+        return "I'm " + NAME + ". Nobody is coming to save you, so let's get to work." + System.lineSeparator()
+                + "What are you going to conquer today?" + System.lineSeparator()
                 + "Type help to see the commands I understand.";
     }
 
@@ -168,7 +173,7 @@ public class Ui {
      * @return the farewell line, suitable for either interface
      */
     public String getFarewell() {
-        return "Bye. Remember, stay hard!";
+        return "Rest up. Tomorrow we go again. Stay hard!";
     }
 
     /**

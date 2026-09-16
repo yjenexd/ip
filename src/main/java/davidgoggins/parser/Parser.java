@@ -107,7 +107,7 @@ public class Parser {
         } catch (NumberFormatException e) {
             // The user typed something like "mark two" or "mark 2 3".
             throw new DavidGogginsException(
-                    "\"" + argument + "\" is not a task number you log! Use a whole number, e.g. "
+                    "\"" + argument + "\" is not a task number. Use a whole number, e.g. "
                             + commandName + " 2.");
         }
     }
@@ -125,7 +125,7 @@ public class Parser {
     public static String parseKeyword(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me what to search for you log! Try: find book");
+                    "Tell me what to search for. You can't chase what you can't name. Try: find book");
         }
         return argument;
     }
@@ -140,7 +140,7 @@ public class Parser {
     public static Todo parseTodo(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "The description of a todo cannot be empty you log! Try: " + TODO_EXAMPLE);
+                    "The description of a todo cannot be empty. Name the work. Try: " + TODO_EXAMPLE);
         }
         return new Todo(argument);
     }
@@ -158,18 +158,18 @@ public class Parser {
         String[] parts = argument.split("/by", 2);
         if (parts.length < 2) {
             throw new DavidGogginsException(
-                    "A deadline needs a /by part you log! Try: " + DEADLINE_EXAMPLE);
+                    "A deadline needs a /by part. Without a date it's just a wish. Try: " + DEADLINE_EXAMPLE);
         }
 
         String description = parts[0].trim();
         String by = parts[1].trim();
         if (description.isEmpty()) {
             throw new DavidGogginsException(
-                    "The description of a deadline cannot be empty you log! Try: " + DEADLINE_EXAMPLE);
+                    "The description of a deadline cannot be empty. Name the work. Try: " + DEADLINE_EXAMPLE);
         }
         if (by.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me when it is due after /by you log! Try: " + DEADLINE_EXAMPLE);
+                    "Tell me when it is due after /by. No date, no deadline. Try: " + DEADLINE_EXAMPLE);
         }
         return new Deadline(description, by);
     }
@@ -185,13 +185,13 @@ public class Parser {
         String[] fromParts = argument.split("/from", 2);
         if (fromParts.length < 2) {
             throw new DavidGogginsException(
-                    "An event needs a /from part. Try: " + EVENT_EXAMPLE);
+                    "An event needs a /from part. When does the work start? Try: " + EVENT_EXAMPLE);
         }
 
         String[] toParts = fromParts[1].split("/to", 2);
         if (toParts.length < 2) {
             throw new DavidGogginsException(
-                    "An event needs a /to part after /from. Try: " + EVENT_EXAMPLE);
+                    "An event needs a /to part after /from. When does it end? Try: " + EVENT_EXAMPLE);
         }
 
         String description = fromParts[0].trim();
@@ -199,7 +199,7 @@ public class Parser {
         String to = toParts[1].trim();
         if (description.isEmpty()) {
             throw new DavidGogginsException(
-                    "The description of an event cannot be empty. Try: " + EVENT_EXAMPLE);
+                    "The description of an event cannot be empty. Name the work. Try: " + EVENT_EXAMPLE);
         }
         if (from.isEmpty()) {
             throw new DavidGogginsException(

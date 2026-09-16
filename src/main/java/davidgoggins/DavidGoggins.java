@@ -35,7 +35,7 @@ public class DavidGoggins {
      * and the error messages always suggest the same syntax.
      */
     private static final String[] HELP_LINES = {
-        "Here are the commands I understand:",
+        "Here are the commands I understand. Learn them, then use them:",
         "todo <description>",
         "Example: " + Parser.TODO_EXAMPLE,
         "deadline <description> /by <yyyy-mm-dd>",
@@ -147,7 +147,7 @@ public class DavidGoggins {
             ui.show(ui.getFarewell());
         } else if (isHelpCommand(trimmedInput)) {
             // The GUI shows the page in its own window, so the chat only confirms it.
-            ui.show("Opened the help window.");
+            ui.show("The help window is open. Study it, then get back to work.");
         } else {
             try {
                 handleCommand(trimmedInput);
@@ -240,7 +240,8 @@ public class DavidGoggins {
         String argument = Parser.parseArgument(userInput);
 
         switch (command) {
-            case "" -> throw new DavidGogginsException("You typed nothing. Give me a command, e.g. list.");
+            case "" -> throw new DavidGogginsException(
+                    "You typed nothing. Silence won't get it done. Give me a command, e.g. list.");
             case "list" -> showTasks();
             case "mark" -> setDone(argument, true);
             case "unmark" -> setDone(argument, false);
@@ -251,7 +252,7 @@ public class DavidGoggins {
             case "find" -> findTasks(Parser.parseKeyword(argument));
             case HELP_COMMAND -> showHelp(argument);
             default -> throw new DavidGogginsException(
-                    "What are you saying! I don't know the command \"" + command + "\". "
+                    "I don't know the command \"" + command + "\". Stop guessing. "
                             + "Type help to see the commands I understand.");
         }
     }
@@ -273,13 +274,31 @@ public class DavidGoggins {
         ui.show(indentedLines);
     }
 
-    /** Prints every task, numbered from 1. */
+    /** Prints every task, numbered from 1, followed by how far the user has got. */
     private void showTasks() {
         if (tasks.size() == 0) {
-            ui.show(" Your list is empty. Get after it!");
+            ui.show(" Your list is empty. Comfortable, aren't you? Add something hard.");
             return;
         }
-        ui.show(" Here are the tasks in your list:", tasks.toString());
+        ui.show(" Here's what you signed up for:", tasks.toString(), " " + formatProgress());
+    }
+
+    /**
+     * Returns a one-line progress callout for the list, in Goggins' voice.
+     *
+     * <p>Split three ways because the push is different at each stage: nothing done
+     * needs a start, some done needs to keep going, and all done needs a new challenge.
+     */
+    private String formatProgress() {
+        int doneCount = tasks.countDone();
+        int total = tasks.size();
+        if (doneCount == 0) {
+            return "0 of " + total + " done. Stop planning and start doing.";
+        }
+        if (doneCount < total) {
+            return doneCount + " of " + total + " done. You're not finished.";
+        }
+        return "All " + total + " done. Now go find something harder.";
     }
 
     /**
@@ -294,10 +313,10 @@ public class DavidGoggins {
     private void findTasks(String keyword) {
         List<Task> matches = tasks.find(keyword);
         if (matches.isEmpty()) {
-            ui.show(" No tasks match \"" + keyword + "\". Nothing hiding from you!");
+            ui.show(" No tasks match \"" + keyword + "\". Nothing to hide behind.");
             return;
         }
-        ui.show(" Here are the matching tasks in your list:", TaskList.format(matches));
+        ui.show(" Here are the matching tasks. Pick one and get it done:", TaskList.format(matches));
     }
 
     /**
@@ -311,14 +330,14 @@ public class DavidGoggins {
         String commandName = isDone ? "mark" : "unmark";
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me which task number NOW!, e.g. " + commandName + " 2.");
+                    "Which task? Give me the number, e.g. " + commandName + " 2.");
         }
 
         int taskNumber = parseExistingTaskNumber(argument, commandName);
         Task task = isDone ? tasks.mark(taskNumber) : tasks.unmark(taskNumber);
         String message = isDone
-                ? " Nice! I've marked this task as done:"
-                : " OK, I've marked this task as not done yet:";
+                ? " DONE. That's one less excuse:"
+                : " Not done after all? Then it's still waiting for you:";
         ui.show(message, "   " + task);
     }
 
@@ -344,9 +363,9 @@ public class DavidGoggins {
         tasks.add(task);
         // The confirmation below quotes the new size, so it must reflect this one addition.
         assert tasks.size() == sizeBefore + 1 : "adding a task should grow the list by one";
-        ui.show(" Got it. I've added this task:",
+        ui.show(" Logged. This one's on you now:",
                 "   " + task,
-                " Now you have " + formatTaskCount() + " in the list.");
+                " You have " + formatTaskCount() + " in the list. Get after it.");
     }
 
     /**
@@ -358,14 +377,14 @@ public class DavidGoggins {
     private void deleteTask(String argument) throws DavidGogginsException {
         if (argument.isEmpty()) {
             throw new DavidGogginsException(
-                    "Tell me which task number to delete, e.g. delete 2.");
+                    "Which task? Give me the number, e.g. delete 2.");
         }
 
         int taskNumber = parseExistingTaskNumber(argument, "delete");
         Task removedTask = tasks.remove(taskNumber);
-        ui.show(" Noted. I've removed this task:",
+        ui.show(" Gone. I've taken this off your list:",
                 "   " + removedTask,
-                " Now you have " + formatTaskCount() + " in the list.");
+                " You have " + formatTaskCount() + " in the list.");
     }
 
     /**
