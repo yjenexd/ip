@@ -45,10 +45,16 @@ public class MainWindow extends AnchorPane {
     /** The chatbot's picture, shown beside each of its replies; the user has none. */
     private final Image botImage = new Image(this.getClass().getResourceAsStream("/images/DaDavidGoggins.png"));
 
-    /** Keeps the newest message in view as the conversation grows. */
+    /**
+     * Keeps the newest message in view as the conversation grows.
+     *
+     * <p>A listener sets the scroll position rather than a binding fixing it, because a
+     * bound position cannot be changed by the user, which froze scrolling after a resize.
+     */
     @FXML
     public void initialize() {
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.heightProperty().addListener((observable, oldHeight, newHeight) ->
+                scrollPane.setVvalue(scrollPane.getVmax()));
     }
 
     /**
