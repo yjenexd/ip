@@ -93,9 +93,14 @@ public class MainWindow extends AnchorPane {
 
         assert davidGoggins != null : "setDavidGoggins() must be called before the user can type";
         String response = davidGoggins.getResponse(input);
-        DialogBox reply = davidGoggins.isLastResponseError()
-                ? DialogBox.getErrorDialog(response, botImage)
-                : DialogBox.getBotDialog(response, botImage);
+        DialogBox reply;
+        if (davidGoggins.isLastResponseError()) {
+            reply = DialogBox.getErrorDialog(response, botImage);
+        } else if (davidGoggins.isLastResponseWarning()) {
+            reply = DialogBox.getWarningDialog(response, botImage);
+        } else {
+            reply = DialogBox.getBotDialog(response, botImage);
+        }
         dialogContainer.getChildren().addAll(DialogBox.getUserDialog(input), reply);
         userInput.clear();
 

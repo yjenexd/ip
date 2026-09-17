@@ -75,6 +75,9 @@ public class DavidGoggins {
     /** Whether the reply last returned by {@link #getResponse} reported an error. */
     private boolean isLastResponseError;
 
+    /** Whether the reply last returned by {@link #getResponse} was a warning, e.g. a task already marked. */
+    private boolean isLastResponseWarning;
+
     /** Warnings raised while loading the save file, one per line, or empty if there were none. */
     private final String loadWarnings;
 
@@ -168,6 +171,7 @@ public class DavidGoggins {
         ui.startCapture();
         String trimmedInput = userInput.trim();
         isLastResponseError = false;
+        isLastResponseWarning = false;
 
         if (isExitCommand(trimmedInput)) {
             ui.show(ui.getFarewell());
@@ -219,6 +223,18 @@ public class DavidGoggins {
      */
     public boolean isLastResponseError() {
         return isLastResponseError;
+    }
+
+    /**
+     * Returns true if the reply last returned by {@link #getResponse} was a warning.
+     *
+     * <p>A warning means the command was valid but changed nothing, such as marking a
+     * task that is already done, so the GUI can style it apart from a normal reply.
+     *
+     * @return true if the last command was understood but had no effect
+     */
+    public boolean isLastResponseWarning() {
+        return isLastResponseWarning;
     }
 
     /**
@@ -404,6 +420,8 @@ public class DavidGoggins {
     /**
      * Marks a task as done or not done and confirms the change.
      *
+     * <p>If the task is already in that state, a warning is shown instead and nothing changes.
+     *
      * @param argument the task number the user typed, as text
      * @param isDone   true to mark as done, false to mark as not done yet
      * @throws DavidGogginsException if the number is missing, not a number, or out of range
@@ -416,7 +434,18 @@ public class DavidGoggins {
         }
 
         int taskNumber = parseExistingTaskNumber(argument, commandName);
-        Task task = isDone ? tasks.mark(taskNumber) : tasks.unmark(taskNumber);
+        // Nothing is changed or saved when the task is already in the requested state,
+        // but the user is told so, rather than getting a confirmation for a no-op.
+        Task task = tasks.get(taskNumber);
+        if (task.isDone() == isDone) {
+            isLastResponseWarning = true;
+            String state = isDone ? "already done" : "already not done";
+            ui.showCommandWarning("Task " + taskNumber + " is " + state + ": " + task
+                    + ". Nothing changed.");
+            return;
+        }
+
+        task = isDone ? tasks.mark(taskNumber) : tasks.unmark(taskNumber);
         String message = isDone
                 ? " DONE. That's one less excuse:"
                 : " Not done after all? Then it's still waiting for you:";

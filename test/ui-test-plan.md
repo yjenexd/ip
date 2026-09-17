@@ -878,7 +878,7 @@ ____________________________________________________________
 
 ### TC18: Handles task numbers at and beyond the boundaries
 
-**Aim:** Checks the edges of the task-number range — a negative number, 0, and a number too large to fit in an `int` — and that marking an already-done task or unmarking an already-not-done task is harmless, so the final `list` shows the single task untouched.
+**Aim:** Checks the edges of the task-number range — a negative number, 0, and a number too large to fit in an `int` — and that marking an already-done task or unmarking an already-not-done task only gives a warning, so the final `list` shows the single task untouched.
 
 **Input:**
 
@@ -924,8 +924,7 @@ ____________________________________________________________
 ____________________________________________________________
 
 ____________________________________________________________
- DONE. That's one less excuse:
-   [T][X] read book
+ Warning: Task 1 is already done: [T][X] read book. Nothing changed.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -938,8 +937,7 @@ ____________________________________________________________
 ____________________________________________________________
 
 ____________________________________________________________
- Not done after all? Then it's still waiting for you:
-   [T][ ] read book
+ Warning: Task 1 is already not done: [T][ ] read book. Nothing changed.
 ____________________________________________________________
 
 ____________________________________________________________

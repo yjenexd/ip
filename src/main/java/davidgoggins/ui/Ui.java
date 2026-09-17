@@ -217,6 +217,22 @@ public class Ui {
     }
 
     /**
+     * Replies to a command with a warning: it was understood, but there was nothing to do.
+     *
+     * <p>Unlike {@link #showWarning}, this answers a command, so the text UI prints it in
+     * a reply block. The GUI leaves out the label, as its warning card has its own tag.
+     *
+     * @param message the explanation to show, without the "Warning:" label
+     */
+    public void showCommandWarning(String message) {
+        if (captured != null) {
+            capture(message);
+            return;
+        }
+        show(WARNING_PREFIX + message);
+    }
+
+    /**
      * Prints warnings that were captured earlier, as the text UI shows warnings.
      *
      * <p>Used for warnings raised while the save file was loaded, which are captured so

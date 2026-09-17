@@ -139,6 +139,30 @@ public class DavidGogginsTest {
     }
 
     @Test
+    public void getResponse_markAlreadyDoneTask_warningShown() {
+        DavidGoggins chatbot = newChatbot();
+        String reply = replyAfter(chatbot, "todo read book", "mark 1", "mark 1");
+        assertTrue(reply.contains("Task 1 is already done"), reply);
+        assertTrue(chatbot.isLastResponseWarning());
+        assertFalse(chatbot.isLastResponseError());
+    }
+
+    @Test
+    public void getResponse_unmarkNotDoneTask_warningShown() {
+        DavidGoggins chatbot = newChatbot();
+        String reply = replyAfter(chatbot, "todo read book", "unmark 1");
+        assertTrue(reply.contains("Task 1 is already not done"), reply);
+        assertTrue(chatbot.isLastResponseWarning());
+    }
+
+    @Test
+    public void isLastResponseWarning_warningThenValidCommand_false() {
+        DavidGoggins chatbot = newChatbot();
+        replyAfter(chatbot, "todo read book", "unmark 1", "list");
+        assertFalse(chatbot.isLastResponseWarning());
+    }
+
+    @Test
     public void getResponse_markWithoutNumber_asksWhichTask() {
         String reply = newChatbot().getResponse("unmark");
         assertTrue(reply.contains("Which task? Give me the number, e.g. unmark 2."), reply);
