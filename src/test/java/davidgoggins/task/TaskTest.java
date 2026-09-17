@@ -89,6 +89,20 @@ public class TaskTest {
         assertTrue(e.getMessage().contains("yyyy-mm-dd"), e.getMessage());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"0001-01-01", "1899-12-31", "2101-01-01", "9999-12-31"})
+    public void deadlineConstructor_unrealisticYear_yearRangeMessage(String date) {
+        DavidGogginsException e = assertThrows(DavidGogginsException.class, () ->
+                new Deadline("pay rent", date));
+        assertTrue(e.getMessage().contains("Pick a year from 1900 to 2100"), e.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1900-01-01", "2100-12-31"})
+    public void deadlineConstructor_boundaryYear_deadlineCreated(String date) throws DavidGogginsException {
+        assertTrue(new Deadline("pay rent", date).toString().contains(date));
+    }
+
     @Test
     public void deadlineConstructor_leapDay_deadlineCreated() throws DavidGogginsException {
         assertEquals("[D][ ] pay rent (by: 2028-02-29)", new Deadline("pay rent", "2028-02-29").toString());

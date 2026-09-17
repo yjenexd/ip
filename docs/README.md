@@ -44,7 +44,7 @@ Example: `deadline return book /by 2026-09-10`
  You have 2 tasks in the list. Get after it.
 ```
 
-Dates must be written as `yyyy-mm-dd`. Impossible dates such as `2026-02-30` are rejected, and `/by` may be used only once.
+Dates must be written as `yyyy-mm-dd`. Impossible dates such as `2026-02-30`, and years outside 1900 to 2100, are rejected, and `/by` may be used only once.
 
 ## Add an event
 
@@ -146,7 +146,7 @@ Errors come back in a reddish bubble (GUI) or with a `NO EXCUSES!` prefix (CLI).
 - An unknown command
 - A missing description, `/by`, `/from`, or `/to`
 - A flag used more than once, or a flag that does not belong to that command
-- A date that is not written as `yyyy-mm-dd`, or one that looks real but is not, such as 30 February
+- A date that is not written as `yyyy-mm-dd`, or one that looks real but is not, such as 30 February, or one with a year outside 1900 to 2100
 - An event whose end comes before its start
 - A task already in the list, added again
 - A task number that is missing, zero, out of range, or not a number

@@ -42,6 +42,12 @@ public abstract class Task {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
+    /** The earliest year accepted in a date; anything older is almost certainly a typo. */
+    private static final int MIN_YEAR = 1900;
+
+    /** The latest year accepted in a date; anything later is almost certainly a typo. */
+    private static final int MAX_YEAR = 2100;
+
     /** Matches text shaped like a date, so a well-formed but impossible date gets its own advice. */
     private static final Pattern DATE_SHAPE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
 
@@ -198,11 +204,13 @@ public abstract class Task {
      * @param date    the text the user typed, expected as {@code yyyy-mm-dd}
      * @param example a correct command to suggest if the date is malformed
      * @return the date the text describes
-     * @throws DavidGogginsException if the text is not a date in that format
+     * @throws DavidGogginsException if the text is not a date in that format, or its year
+     *         is outside {@link #MIN_YEAR} to {@link #MAX_YEAR}
      */
     protected static LocalDate parseDate(String date, String example) throws DavidGogginsException {
+        LocalDate parsedDate;
         try {
-            return LocalDate.parse(date, DATE_FORMATTER);
+            parsedDate = LocalDate.parse(date, DATE_FORMATTER);
         } catch (DateTimeParseException e) {
             if (DATE_SHAPE.matcher(date).matches()) {
                 throw new DavidGogginsException("\"" + date + "\" is not a real date. "
@@ -211,6 +219,12 @@ public abstract class Task {
             throw new DavidGogginsException("I need the date as yyyy-mm-dd, not \"" + date
                     + "\". Try: " + example);
         }
+
+        if (parsedDate.getYear() < MIN_YEAR || parsedDate.getYear() > MAX_YEAR) {
+            throw new DavidGogginsException("\"" + date + "\" is not a realistic date. "
+                    + "Pick a year from " + MIN_YEAR + " to " + MAX_YEAR + ".");
+        }
+        return parsedDate;
     }
 
     /**
